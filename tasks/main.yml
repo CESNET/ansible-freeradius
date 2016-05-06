@@ -1,0 +1,26 @@
+- name: Create file for localy instaled debs
+  file: path=/opt/deb state=directory mode=0755
+
+- name: Check if freeRADIUS is installed
+  shell: dpkg-query -l freeradius | grep 'freeradius *{{ fr_version }} ' ; /bin/true
+  register: fr_installed
+  changed_when: False
+
+- debug: msg="{{ fr_installed }}"
+
+- debug: msg={{ fr_installed.stdout.find('freeradius') }}
+
+- debug: msg="ahoj"
+  when: fr_installed.stdout.find('freeradius') == -1
+
+- name: Download packages freeRADIUS packages
+  get_url: url="http://staff.cesnet.cz/~semik/freeradius/{{ item }}" dest=/opt/deb
+  with_items: "{{ fr_packages }}"
+  when: fr_installed.stdout.find('freeradius') == -1
+
+# Bohuzel prima instalace balicku vzdy nastavi changed=true takze tady
+# tanecek pro urychleni.
+- name: Install freeRADIUS packages
+  apt: deb=/opt/deb/{{ item }} state=present
+  with_items: "{{ fr_packages }}"
+  when: fr_installed.stdout.find('freeradius') == -1
