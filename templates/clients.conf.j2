@@ -1,0 +1,29 @@
+# ansible managed do not touch
+
+client localhost {
+	ipaddr = 127.0.0.1
+	proto = *
+	secret = testing123
+
+	require_message_authenticator = no
+
+	nas_type	 = other	# localhost isn't usually a NAS...
+
+	limit {
+		max_connections = 16
+		lifetime = 0
+		idle_timeout = 30
+	}
+}
+
+# IPv6 Client
+client localhost_ipv6 {
+	ipv6addr	= ::1
+	secret		= testing123
+}
+
+client ermon.cesnet.cz.cz {   
+       ipaddr = 195.113.233.246
+       secret = {{ eduroam.ermon_secret }}
+       shortname = ermon
+}

@@ -1,3 +1,5 @@
+- include_vars: group_vars/shibboleth_idp_vault.yml
+
 - name: Create file for localy instaled debs
   file: path=/opt/deb state=directory mode=0755
 
@@ -18,9 +20,83 @@
   with_items: "{{ fr_packages }}"
   when: fr_installed.stdout.find('freeradius') == -1
 
-# Bohuzel prima instalace balicku vzdy nastavi changed=true takze tady
+# Bohuzel prima instalace balicku vzdy nastavi changed=true takze vyse
 # tanecek pro urychleni.
 - name: Install freeRADIUS packages
   apt: deb=/opt/deb/{{ item }} state=present
   with_items: "{{ fr_packages }}"
   when: fr_installed.stdout.find('freeradius') == -1
+  notify: restart freeradius
+
+# Nakopirovani potrebnych souboru
+- name: Copy freeRADIUS files
+  copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
+  with_items:
+    - { src: certs/chain_CESNET_CA3.pem,
+        dest: /etc/freeradius/certs }
+    - { src: certs/chain_TERENA_SSL_CA_3.pem,
+        dest: /etc/freeradius/certs }
+
+- name: Copy templated freeRADIUS files
+  template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
+  with_items:
+    - { src: default.j2,
+        dest: /etc/freeradius/sites-available/default }
+    - { src: tls.j2,
+        dest: /etc/freeradius/sites-available/tls }
+    - { src: inner-tunnel.j2,
+        dest: /etc/freeradius/sites-available/inner-tunnel }
+    - { src: clients.conf.j2,
+        dest: /etc/freeradius/clients.conf }
+    - { src: proxy.conf.j2,
+        dest: /etc/freeradius/proxy.conf }
+    - { src: radiusd.conf.j2,
+        dest: /etc/freeradius/radiusd.conf }
+    - { src: eap.j2,
+        dest: /etc/freeradius/mods-available/eap }
+    - { src: ldap.j2,
+        dest: /etc/freeradius/mods-available/ldap }
+  notify: restart freeradius
+
+- name: Nalinkovani potrebnych souboru
+  file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
+  with_items:
+    - { src: ../sites-available/tls,
+        dest: /etc/freeradius/sites-enabled/tls }
+    - { src: ../sites-available/inner-tunnel,
+        dest: /etc/freeradius/sites-enabled/inner-tunnel }
+    - { src: ../mods-available/ldap,
+        dest: /etc/freeradius/mods-enabled/ldap }
+    - { src: ../mods-available/eap,
+        dest: /etc/freeradius/mods-enabled/eap }
+  notify: restart freeradius
+
+# Je to pracny, ale sdilime certifikat s IdPckem ktery to potrebuje v
+# PKCS12 Vidim jako vyhodu ze v vaultu je pouze heslo od PKCS12
+- name: Copy PKCS#12 formated certificate & private key to server
+  copy: src="{{ ansible_fqdn }}.pkcs12" dest=/etc/freeradius/certs/ mode=0400 owner=freerad group=freerad backup=yes
+  register: certificate
+
+- name: Extract private key from PKCS#12
+  shell: 'openssl pkcs12 -in "{{ ansible_fqdn }}.pkcs12" -out "{{ ansible_fqdn }}.key" -nocerts -nodes -passin env:PKCS12_PSWD'
+  environment:
+    PKCS12_PSWD: "{{ certificate_password }}"
+  args: 
+    chdir: /etc/freeradius/certs/
+  when: certificate.changed
+  notify: restart freeradius
+
+- name: Extract certificate from PKCS#12
+  shell: 'openssl pkcs12 -in "{{ ansible_fqdn }}.pkcs12" -out "{{ ansible_fqdn }}.crt" -clcerts -nokeys -nodes -passin env:PKCS12_PSWD'
+  environment:
+    PKCS12_PSWD: "{{ certificate_password }}"
+  args: 
+    chdir: /etc/freeradius/certs/
+  when: certificate.changed
+  notify: restart freeradius
+
+- name: Correct cert file permisions
+  file: path={{ item }} owner=freerad group=freerad mode=0400 state=file
+  with_items:
+    - "/etc/freeradius/certs/{{ ansible_fqdn }}.crt"
+    - "/etc/freeradius/certs/{{ ansible_fqdn }}.key"
