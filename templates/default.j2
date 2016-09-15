@@ -362,9 +362,13 @@ authorize {
 	#  initial set of packets that go back and forth to set up
 	#  TTLS or PEAP.
 	#
+{% if eduroam.IdP %}
 	eap {
 		ok = return
 	}
+{% else %}
+        # eap module disabled, eduoram.IdP is not defined
+{% endif %}
 
 	#
 	#  Pull crypt'd passwords from /etc/passwd or /etc/shadow,
@@ -504,6 +508,7 @@ authenticate {
 	#	ldap
 	#}
 
+{% if eduroam.IdP %}
 	#
 	#  Allow EAP authentication.
 	eap
@@ -520,6 +525,9 @@ authenticate {
                         handled  # override rcode (maybe superfluous)
                 }
         }
+{% else %}
+        # eap module disabled, eduoram.IdP is not defined
+{% endif %}
 
 	#
 	#  The older configurations sent a number of attributes in
@@ -718,6 +726,7 @@ post-auth {
 	# exclude monitoring records from log
 	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|70-6f-6c-69-|^706f6c69|^706f\.6c69/ || "%{%{State}:-NONE}" == "NONE") {
 		reply_log
+		f_ticks
 	}{% endraw %}
 
 	#
@@ -835,7 +844,11 @@ post-auth {
 		# Insert EAP-Failure message if the request was
 		# rejected by policy instead of because of an
 		# authentication failure
+{% if eduroam.IdP %}
 		eap
+{% else %}
+   	        # eap module disabled, eduoram.IdP is not defined
+{% endif %}
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
@@ -907,7 +920,11 @@ post-proxy {
 	#  hidden inside of the EAP packet, and the end server will
 	#  reject the EAP request.
 	#
+{% if eduroam.IdP %}
 	eap
+{% else %}
+        # eap module disabled, eduoram.IdP is not defined
+{% endif %}
 
 	#
 	#  If the server tries to proxy a request and fails, then the

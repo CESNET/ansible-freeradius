@@ -1,0 +1,12 @@
+linelog f_ticks {
+       filename = syslog
+       #syslog_facility = local0
+       #syslog_severity = info
+       format = ""
+       reference = {% raw %}"f_ticks.%{%{reply:Packet-Type}:-format}"{% endraw %},
+       f_ticks {
+       	       Access-Accept = "F-TICKS/eduroam/1.0#REALM={% raw %}%{% endraw %}{Realm}#VISCOUNTRY={{ eduroam.visCountry }}#VISINST={% raw %}%{% endraw %}{Operator-Name}#CSI={% raw %}%{% endraw %}{Calling-Station-Id}#RESULT=OK#"
+	       Access-Reject = "F-TICKS/eduroam/1.0#REALM={% raw %}%{% endraw %}{Realm}#VISCOUNTRY={{ eduroam.visCountry }}#VISINST={% raw %}%{% endraw %}{Operator-Name}#CSI={% raw %}%{% endraw %}{Calling-Station-Id}#RESULT=FAIL#"
+
+       }
+}

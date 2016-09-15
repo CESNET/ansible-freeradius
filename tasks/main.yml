@@ -8,13 +8,6 @@
   register: fr_installed
   changed_when: False
 
-- debug: msg="{{ fr_installed }}"
-
-- debug: msg={{ fr_installed.stdout.find('freeradius') }}
-
-- debug: msg="ahoj"
-  when: fr_installed.stdout.find('freeradius') == -1
-
 - name: Download packages freeRADIUS packages
   get_url: url="http://staff.cesnet.cz/~semik/freeradius/{{ item }}" dest=/opt/deb
   with_items: "{{ fr_packages }}"
@@ -32,10 +25,15 @@
 - name: Copy freeRADIUS files
   copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
   with_items:
+    - { src: freeradius.logrotate,
+        dest: /etc/logrotate.d/freeradius }
     - { src: certs/chain_CESNET_CA3.pem,
         dest: /etc/freeradius/certs }
     - { src: certs/chain_TERENA_SSL_CA_3.pem,
         dest: /etc/freeradius/certs }
+    - { src: post-proxy,
+        dest: /etc/freeradius/mods-config/attr_filter/post-proxy }
+  notify: restart freeradius
 
 - name: Copy templated freeRADIUS files
   template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
@@ -54,8 +52,24 @@
         dest: /etc/freeradius/radiusd.conf }
     - { src: eap.j2,
         dest: /etc/freeradius/mods-available/eap }
+    - { src: f_ticks.j2,
+        dest: /etc/freeradius/mods-available/f_ticks }
+  notify: restart freeradius
+
+- name: Copy templated freeRADIUS files (IdP role)
+  template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
+  when: eduroam.IdP
+  with_items:
     - { src: ldap.j2,
         dest: /etc/freeradius/mods-available/ldap }
+  notify: restart freeradius
+
+- name: Odstraneni zbytechnych souboru (SP only role)
+  file: dest={{ item }} owner=root group=root state=absent
+  when: eduroam.IdP == 0
+  with_items:
+    - /etc/freeradius/sites-enabled/inner-tunnel
+    - /etc/freeradius/mods-enabled/eap
   notify: restart freeradius
 
 - name: Nalinkovani potrebnych souboru
@@ -63,6 +77,14 @@
   with_items:
     - { src: ../sites-available/tls,
         dest: /etc/freeradius/sites-enabled/tls }
+    - { src: ../mods-available/f_ticks,
+        dest: /etc/freeradius/mods-enabled/f_ticks }
+  notify: restart freeradius
+
+- name: Nalinkovani potrebnych souboru (IdP role)
+  file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
+  when: eduroam.IdP
+  with_items:
     - { src: ../sites-available/inner-tunnel,
         dest: /etc/freeradius/sites-enabled/inner-tunnel }
     - { src: ../mods-available/ldap,
@@ -100,3 +122,9 @@
   with_items:
     - "/etc/freeradius/certs/{{ ansible_fqdn }}.crt"
     - "/etc/freeradius/certs/{{ ansible_fqdn }}.key"
+
+- name: Copy detailed logs archivator
+  copy: src=freeradius-monthly.sh dest=/usr/local/bin/freeradius-monthly.sh mode=0755 owner=root group=root backup=yes
+
+- name: Install detaied logs archivator into cron
+  cron: day=7 hour=7 minute=54 job=/usr/local/bin/freeradius-monthly.sh name="detailed log archivation"

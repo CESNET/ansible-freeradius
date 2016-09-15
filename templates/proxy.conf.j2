@@ -740,7 +740,7 @@ realm NULL {
 #
 #  This realm is for ALL OTHER requests.
 #
-realm DEFAULT {
+realm "~.+$" {
       status_check = status-server
       auth_pool = tls
       nostrip

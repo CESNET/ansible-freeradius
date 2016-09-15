@@ -22,8 +22,16 @@ client localhost_ipv6 {
 	secret		= testing123
 }
 
-client ermon.cesnet.cz.cz {   
-       ipaddr = 195.113.233.246
-       secret = {{ eduroam.ermon_secret }}
+client ermon.cesnet.cz {   
+       ipaddr    = 195.113.233.246
+       secret    = {{ eduroam.ermon_secret }}
        shortname = ermon
 }
+
+{% for client in eduroam.NAS %}
+client {{ eduroam.NAS[client].shortname }} {
+       ipaddr    = {{ eduroam.NAS[client].ipaddr }}
+       secret    = {{ eduroam.NAS[client].secret }}      
+       shortname = {{ eduroam.NAS[client].shortname }}       
+}
+{% endfor %}
