@@ -1,4 +1,7 @@
 # -*- text -*-
+#
+# ansible managed do not touch!
+#
 ##
 ## radiusd.conf	-- FreeRADIUS server configuration file - 3.0.11
 ##
@@ -210,7 +213,12 @@ max_request_time = 30
 #
 #  Useful range of values: 2 to 10
 #
-cleanup_delay = 5
+# SEMIK: Zvetsenim intervalu se zvysi sance na pozitivni vyrizeni
+# pozadavku ktere se v eduroam infrastrukture toulaji dele. Detaily
+# pripadne moje soukroma korespondence s Kankovskym "No EAP session
+# matching the State variable"
+
+cleanup_delay = 10
 
 #  max_requests: The maximum number of requests which the server keeps
 #  track of.  This should be 256 multiplied by the number of clients.
@@ -341,6 +349,9 @@ log {
 	#
 	#  allowed values: {no, yes}
 	#
+	# SEMIK: Pozadavky o uspesne/neuspesne autentizace logujeme do
+        # hlavniho log souboru
+
 	auth = yes
 
 	#  Log passwords with the authentication requests.

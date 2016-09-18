@@ -1,5 +1,8 @@
 # -*- text -*-
 #
+# ansible managed do not touch!
+#
+#
 #  $Id: 0a1cf0221a9cbc95001d86d2ba3b16ac99330471 $
 
 #
@@ -110,7 +113,7 @@ ldap {
 	#  the name value to be derived from an xlat expansion, or an
 	#  attribute ref.
 	update {
-	        control:Cleartext-Password      := 'radiusPassword' 
+	        control:Cleartext-Password      := '{{ ldap.attrs.eduroamPassword }}' 
 		control:Password-With-Header	+= 'userPassword'
 #		control:NT-Password		:= 'ntPassword'
 #		reply:Reply-Message		:= 'radiusReplyMessage'

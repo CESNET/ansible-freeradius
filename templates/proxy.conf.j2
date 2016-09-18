@@ -1,4 +1,11 @@
+# -*- text -*-
+#
 # ansible managed do not touch
+#
+##
+## proxy.conf -- proxy radius and realm configuration directives
+##
+##	$Id: a72beebf52d791616a09ebd69dd7ea9349597363 $
 
 #######################################################################
 #
@@ -61,6 +68,7 @@ proxy server {
 	#  allowed values: {yes, no}
 	#
 	default_fallback = no
+
 }
 
 #######################################################################
@@ -725,7 +733,6 @@ realm {{ eduroam.realm }} {
 #  DEFAULT EAP-Type == PEAP, Proxy-To-Realm := LOCAL
 #
 realm LOCAL {
-#      virtual_server  = auth-reject
 }
 
 #

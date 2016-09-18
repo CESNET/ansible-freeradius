@@ -1,4 +1,7 @@
 #
+# ansible managed do not touch!
+#
+#
 #	Configuration file for the rlm_attr_filter module.
 #	Please see rlm_attr_filter(5) manpage for more information.
 #
