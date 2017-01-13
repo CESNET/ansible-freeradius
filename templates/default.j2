@@ -299,7 +299,7 @@ authorize {
 
 
 	# exclude monitoring records from auth_log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
+	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
 		auth_log
 	}{% endraw %}
 
@@ -520,7 +520,7 @@ authenticate {
                         handled = 1
                 }
                 # record access-chalenge & exclude monitoring records from log
-                if (handled && Calling-Station-Id !~ /^70-6F-6C-69-|70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
+                if (handled && Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
                         reply_log.post-auth
                         handled  # override rcode (maybe superfluous)
                 }
@@ -724,7 +724,7 @@ post-auth {
 #	cui
 
 	# exclude monitoring records from log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|70-6f-6c-69-|^706f6c69|^706f\.6c69/ || "%{%{State}:-NONE}" == "NONE") {
+	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/ || "%{%{State}:-NONE}" == "NONE") {
 		reply_log
 		f_ticks
 	}{% endraw %}
@@ -889,7 +889,7 @@ pre-proxy {
 	#  'detail pre_proxy_log' section, above.
 
 	# exclude monitoring from log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
+	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
 		pre_proxy_log
 	}{% endraw %}
 }
@@ -901,7 +901,7 @@ pre-proxy {
 #
 post-proxy {
 	# exclude monitoring from log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
+	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
 		post_proxy_log
 	}{% endraw %}
 
