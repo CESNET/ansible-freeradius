@@ -1,2 +1,2 @@
 # ansible-freeradius
-Ansible role to install FreeRADIUs for eduroam.cz by Semik
+Ansible role to install FreeRADIUs for eduroam.cz by Semik2
