@@ -5,7 +5,7 @@
 #  Initial implementation of RADIUS over TLS (radsec)
 #
 ######################################################################
-
+{% if eduroam.IdP %}
 listen {
 	ipaddr = *
 	port = 2083
@@ -337,6 +337,9 @@ listen {
 		}
 	}
 }
+{% else %}
+# listen section removed, eduroam.IdP is not defined
+{% endif %}
 
 clients radsec {
 	client 127.0.0.1 {
