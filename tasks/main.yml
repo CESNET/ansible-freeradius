@@ -1,25 +1,28 @@
 - include_vars: group_vars/shibboleth_idp_vault.yml
 
-- name: Create file for localy instaled debs
-  file: path=/opt/deb state=directory mode=0755
+# REPO @ aaiwiki is using HTTPS.
+- name: install apt-transport-https to be able use aaiwiki repo
+  apt: name=apt-transport-https state=latest
 
-- name: Check if freeRADIUS is installed
-  shell: dpkg-query -l freeradius | grep 'freeradius *{{ fr_version }} ' ; /bin/true
-  register: fr_installed
-  changed_when: False
+- name: add our FreeRADIUS repository
+  apt_repository:
+    repo: deb https://aaiwiki.cesnet.cz/deb/jessie ./
+    state: present
+    update_cache: yes
 
-- name: Download packages freeRADIUS packages
-  get_url: url="http://staff.cesnet.cz/~semik/freeradius/{{ item }}" dest=/opt/deb
-  with_items: "{{ fr_packages }}"
-  when: fr_installed.stdout.find('freeradius') == -1
+- name: update repo cache
+  apt: update_cache=yes cache_valid_time=5  #86400
 
-# Bohuzel prima instalace balicku vzdy nastavi changed=true takze vyse
-# tanecek pro urychleni.
-- name: Install freeRADIUS packages
-  apt: deb=/opt/deb/{{ item }} state=present
-  with_items: "{{ fr_packages }}"
-  when: fr_installed.stdout.find('freeradius') == -1
-  notify: restart freeradius
+# It is needed to list all FreeRADIUS packages. Without that are
+# updated only some of them.
+- name: install freeradius
+  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  with_items:
+    - freeradius
+    - freeradius-ldap
+    - freeradius-common
+    - freeradius-config
+    - freeradius-utils
 
 # Nakopirovani potrebnych souboru
 - name: Copy freeRADIUS files 1/2
