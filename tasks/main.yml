@@ -36,6 +36,10 @@
         dest: /etc/freeradius/certs }
     - { src: post-proxy,
         dest: /etc/freeradius/mods-config/attr_filter/post-proxy }
+    - { src: filter,
+        dest: /etc/freeradius/policy.d/filter }
+    - { src: eduroam-realm-checks,
+        dest: /etc/freeradius/policy.d/eduroam-realm-checks }
   notify: restart freeradius
 
 # it is posible that one of above certificate will never by used ...
@@ -91,6 +95,8 @@
         dest: /etc/freeradius/sites-enabled/tls }
     - { src: ../mods-available/f_ticks,
         dest: /etc/freeradius/mods-enabled/f_ticks }
+    - { src: ../mods-available/cui,
+        dest: /etc/freeradius/mods-enabled/cui }
   notify: restart freeradius
 
 - name: link needed files (IdP role)
