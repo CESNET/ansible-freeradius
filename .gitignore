@@ -1,0 +1,6 @@
+*~
+ansible.log
+*.retry
+tmp
+.DS_Store
+*.sw[po]
