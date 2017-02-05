@@ -295,7 +295,11 @@ authorize {
 	#  If you want to generate CUI for some clients that do not
 	#  send proper CUI requests, then uncomment the
 	#  cui below and set "add_cui = yes" for these clients in clients.conf
+{% if eduroam.IdP %}
+	cui
+{% else %}
 #	cui
+{% endif %}
 
 
 	# exclude monitoring records from auth_log
@@ -607,7 +611,7 @@ accounting {
 	#  Update accounting packet by adding the CUI attribute
 	#  recorded from the corresponding Access-Accept
 	#  use it only if your NAS boxes do not support CUI themselves
-#	cui
+	cui
 	#
 	#  Create a 'detail'ed log of the packets.
 	#  Note that accounting requests which are proxied
@@ -721,7 +725,11 @@ post-auth {
 
 	#  Create the CUI value and add the attribute to Access-Accept.
 	#  Uncomment the line below if *returning* the CUI.
+{% if eduroam.IdP %}
+	cui
+{% else %}
 #	cui
+{% endif %}
 
 	# exclude monitoring records from log
 	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/ || "%{%{State}:-NONE}" == "NONE") {
@@ -873,7 +881,7 @@ pre-proxy {
 	#  The client requests the CUI by sending a CUI attribute
 	#  containing one zero byte.
 	#  Uncomment the line below if *requesting* the CUI.
-#	cui
+	cui
 
 	#  Uncomment the following line if you want to change attributes
 	#  as defined in the preproxy_users file.
