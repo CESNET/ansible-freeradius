@@ -261,6 +261,10 @@ authorize {
 	#
 	filter_username
 
+	#  Check eduroam realms for commonly known typos like space
+	#  after realm, myabc.com, gmail.com and similar.
+	filter_eduroam_realms
+
 	update request {
 	       # the literal number "1" above is an important prefix! Do not change it!
                Operator-Name := "1{{eduroam.realm}}"

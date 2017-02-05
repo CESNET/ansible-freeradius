@@ -1,0 +1,297 @@
+#*********************************************************#
+# eduroam Realm Checks - James J J Hooper (2011-03-28)
+#                        jjj.hooper [at] bristol.ac.uk
+#                      - Jan Tomášek (2017-02-05)
+#	 	         jan.tomasek@cesnet.cz
+#*********************************************************#
+#
+# The easiest way to use this file is:
+# (1) read all of the comments in it,
+# (2) place it in your freeradius/policy.d directory,
+# (3) make sure it's permissions are set so it can be read
+# by radiusd,
+# (4) and then put the one line below:
+#
+# filter_eduroam_realms
+#
+# ... as the first line in the *authorize* section of your
+# sites-enabled/default file (or whatever you called it),
+# (5) execute "radiusd -XC" to check the syntax is accepted,
+# (6) restart radiusd.
+#
+# There are many other, perhaps more elegant, ways to use
+# this but describing them is outside of the scope of
+# this file!
+#
+# Refer to the "Reply-Message" lines for a human readable
+# interpretation of the regexes
+#
+#*********************************************************#
+
+
+filter_eduroam_realms {
+    if (&User-Name) {
+
+#*********************************************************#
+# eduroam Realm checks - Section One
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# This section contains checks that the realm exists,
+# and is valid as per RFC4282 in an eduroam context.
+#
+#   ** It is very unlikely you will need to alter **
+#   ** any of the matches within this section     **
+#
+#*********************************************************#
+
+	if(!(&User-Name =~ /@/)){
+		update reply {
+			Reply-Message := "Your User-Name is invalid (no realm)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@$/){
+		update reply {
+			Reply-Message := "Your realm is invalid (it is blank)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@.+?@/){
+		update reply {
+			Reply-Message := "Your realm is invalid (more than one @)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@.+?[^[:alnum:]\.-]/){
+		update reply {
+			Reply-Message := "Your realm is invalid (contains not alphanumeric, hyphen or period)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@[\.-]/){
+		update reply {
+			Reply-Message := "Your realm is invalid (begins with a period or hyphen)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@.+?[\.-]$/){
+		update reply {
+			Reply-Message := "Your realm is invalid (ends with a period or hyphen)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@[^\.]+$/){
+		update reply {
+			Reply-Message := "Your realm is invalid (does not contain a period)"
+		}
+		reject
+	}
+
+	if(&User-Name =~ /@.+?\.\./){
+		update reply {
+			Reply-Message := "Your realm is invalid (contains sequential periods)"
+		}
+		reject
+	}
+
+
+#*********************************************************#
+# eduroam Realm checks - Section Two
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# This section contains checks that the realm is not
+# a common supplicant default, and that it does not
+# match a realm commonly mischosen by users.
+#
+# You may have to comment parts of this section if 
+# e.g. gmail.com becomes used as a eduroam NAI realm
+# (currently organisations continue to use their own
+# namespace when out sourcing)
+#
+#*********************************************************#
+
+	# myabc.com is commonly used by default by Intel supplicant software
+	if(&User-Name =~ /@myabc\.com$/i){
+        	update reply {
+                	Reply-Message := "Your realm is invalid (it is myabc.com)"
+        	}
+		reject
+	}
+
+	# 3gppnetwork.org, another common default realm
+	if(&User-Name =~ /@wlan\.[[:alnum:]]+\.[[:alnum:]]+\.3gppnetwork\.org$/i){
+        	update reply {
+                	Reply-Message := "Your realm is invalid (it matches a wlan. subrealm of 3gppnetwork.org)"
+        	}
+		reject
+	}
+
+        # gmail.com and gmail.co.??
+        if (&User-Name =~ /@gmail\.co(m|\.[[:alnum:]][[:alnum:]])$/i){
+                update reply {
+                        Reply-Message := "Your realm is invalid (looks like a Gmail domain)"
+                }
+		reject
+        }
+
+        # yahoo.com and yahoo.co.??
+        if (&User-Name =~ /@yahoo\.co(m|\.[[:alnum:]][[:alnum:]])$/i){
+                update reply {
+                        Reply-Message := "Your realm is invalid (looks like a Yahoo domain)"
+                }
+		reject
+        }
+
+        # hotmail.com and hotmail.co.??
+        if (&User-Name =~ /@hotmail\.co(m|\.[[:alnum:]][[:alnum:]])$/i){
+                update reply {
+                        Reply-Message := "Your realm is invalid (looks like a Hotmail domain)"
+                }
+		reject
+        }
+
+
+#*********************************************************#
+# eduroam Realm checks - Section Three
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# This section contains local TLD specific and local
+# realm specific checks for common typos, and errors
+# created by "predictive text" systems.
+#
+# You COULD alter this section to match your site,
+# and then uncomment the latter half. Refer to your logs
+# to find out the common errors made by your users.
+# If you are unable to confidently customise this section,
+# leave it commented and use this file as is.
+#
+# N.B. This section may need to be periodically updated
+# Do not uncomment it if you don't have the resources
+# to keep it up to date!
+#
+# WARNING: You have to be VERY careful not to match an
+# existing or future valid realm. e.g. bria.ac.uk is a 
+# common mistyping of bris.ac.uk, but if you reject
+# =~ /bria\.ac\.uk$/i then you would also reject
+# northumbria.ac.uk (an existing valid realm).
+# =~ /@bria\.ac\.uk$/i would likely be safe though.
+#
+#*********************************************************#
+
+	# Common CZ academic errors
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~
+	if (&User-Name =~ /\.zc$/i){
+        	update reply {
+                	Reply-Message := "Your realm is invalid (.zc is not existing TLD)"
+        	}
+		reject
+	}
+
+	# Common UK academic errors
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# # only .ac.uk
+	# if (&User-Name =~ /@\.?ac\.uk$/i){
+        # 	update reply {
+        #         	Reply-Message := "Your realm is invalid (only ac.uk)"
+        # 	}
+	# 	reject
+	# }
+
+	# # .ax.uk instead of .ac.uk
+	# if (&User-Name =~ /@.+?\.ax\.uk$/i){
+        # 	update reply {
+        #         	Reply-Message := "Your realm is invalid (contains .ax.uk)"
+        # 	}
+	# 	reject
+	# }
+
+#	# Common site specific errors
+#	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#	# any sub-domain of your realm(s)  
+#	# N.B. your organisation my have some valid sub-domain realms!
+#	if (&User-Name =~ /@.+\.bris(tol)?\.ac\.uk$/i){
+#        	update reply {
+#                	Reply-Message := "Your realm is invalid (sub-domain)"
+#        	}
+#		reject
+#	}
+#
+#	# any super-domain of your realm(s)
+#	if (&User-Name =~ /@bris(tol)?\.ac\.uk./i){
+#        	update reply {
+#                	Reply-Message := "Your realm is invalid (super-domain)"
+#        	}
+#		reject
+#	}
+#
+#        # transposed second and third letters in third level, any second level, within .uk ccTLD
+#        if (&User-Name =~ /@birs(tol)?\..+\.uk$/i){
+#                update reply {
+#                        Reply-Message := "Your realm is invalid (transposed 2nd and 3rd letters in 3rd level)"
+#                }
+#		reject
+#        }
+#
+#        # Predictive text adding a character onto third level
+#        if (&User-Name =~ /@bris.\.ac\.uk$/i){
+#                update reply {
+#                        Reply-Message := "Your realm is invalid (bris?.ac.uk)"
+#                }
+#		reject
+#        }
+#
+#	# transposed .ac and .uk
+#	if (&User-Name =~ /@bris(tol)?\.uk\.ac$/i){
+#                update reply {
+#                        Reply-Message := "Your realm is invalid (.uk.ac instead of .ac.uk)"
+#                }
+#		reject
+#        }
+#
+#	# .uk.com or .com instead of .ac.uk
+#	if (&User-Name =~ /@bris(tol)?\.(uk\.)?com$/i){
+#                update reply {
+#                        Reply-Message := "Your realm is invalid (.com instead of .ac.uk)"
+#                }
+#		reject
+#        }
+#
+#
+#	# incorrect third or fourth letters
+#        if ((&User-Name =~ /@bri.(tol)?\.ac\.uk$/i) || (&User-Name =~ /@br.s(tol)?\.ac\.uk$/i)){
+#          if (!(&User-Name =~ /@bris(tol)?\./i)){
+#                update reply {
+#                        Reply-Message := "Your realm is invalid (wrong 3rd or 4th letter)"
+#                }
+#		reject
+#          }
+#        }
+#
+#	# incorrect or missing second level - use if your primary realm has 3 levels e.g. bristol.ac.uk (3rd.2nd.1st)
+#	if ((&User-Name =~ /@bris(tol)?(\..+)?\.uk$/i) && (!(&User-Name =~ /@bris(tol)?\.ac\.uk$/i))){
+#        	update reply {
+#                	Reply-Message := "Your realm is invalid (incorrect 2nd level)"
+#        	}
+#		reject
+#	}
+#
+#	# enforce lower case (enable only if your organisation decides it needs this)
+#	# DO NOT be tempted to optimise this to =~ /@.+?[[:upper:]]/
+#	# You can only enforce lowercase policy for YOUR realms, not all realms!
+#	if ((&User-Name =~ /@bris(tol)?\.ac\.uk$/i) && (!(&User-Name =~ /@bris(tol)?\.ac\.uk$/))){
+#        	update reply {
+#                	Reply-Message := "Your realm is invalid (not all lowercase)"
+#        	}
+#		reject
+#	}
+
+    }
+} # end of eduroam-realm-checks
