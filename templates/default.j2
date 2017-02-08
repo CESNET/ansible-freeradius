@@ -265,6 +265,9 @@ authorize {
 	#  after realm, myabc.com, gmail.com and similar.
 	filter_eduroam_realms
 
+	#  Stop weblogin except of localrealms
+	kill_weblogin
+
 	update request {
 	       # the literal number "1" above is an important prefix! Do not change it!
                Operator-Name := "1{{eduroam.realm}}"

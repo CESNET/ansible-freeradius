@@ -1,0 +1,11 @@
+kill_weblogin {
+    if (&CHAP-Password || &User-Password) {
+        if (&User-Name =~ /@semik-dev\.cesnet\.cz$/ || &User-Name =~ /@cesnet\.cz$/ || true) {
+        } else {
+   	    update request {
+	       Module-Failure-Message = "CHAP-Password nor User-Password allowed"
+            }
+	    reject
+        }
+    }
+}
