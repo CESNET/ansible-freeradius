@@ -656,7 +656,13 @@ home_server_pool my_auth_failover {
 #DEFAULT	Proxy-To-Realm := "realm_name"
 #
 #
-realm {{ eduroam.realm }} {
+
+{% for realm in eduroam.realm %}
+realm {{ realm }} {
+}
+{% endfor %}
+
+# realm example.com {
 	#
 	#  Realms point to pools of home servers.
 #
@@ -706,7 +712,7 @@ realm {{ eduroam.realm }} {
 	# nostrip
 
 	#  There are no more configuration entries for a realm.
-}
+#}
 
 
 #

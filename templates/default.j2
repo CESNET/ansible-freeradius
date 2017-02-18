@@ -270,7 +270,7 @@ authorize {
 
 	update request {
 	       # the literal number "1" above is an important prefix! Do not change it!
-               Operator-Name := "1{{eduroam.realm}}"
+               Operator-Name := "1{{eduroam.realm|first}}"
         }
 
 	#
