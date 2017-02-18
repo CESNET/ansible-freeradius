@@ -70,6 +70,8 @@
         dest: /etc/freeradius/mods-available/eap }
     - { src: f_ticks.j2,
         dest: /etc/freeradius/mods-available/f_ticks }
+    - { src: kill-weblogin.j2,
+        dest: /etc/freeradius/policy.d/kill-weblogin }
   notify: restart freeradius
 
 - name: Copy templated freeRADIUS files (IdP role)
