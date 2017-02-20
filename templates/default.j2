@@ -409,7 +409,13 @@ authorize {
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
-	#ldap
+{% if eduroam.IdP %}
+        if ({% for realm in eduroam.realm %}&User-Name =~ /@{{ realm }}/ || {% endfor %}false) {
+	  ldap
+        }
+{% else %}
+#       ldap    
+{% endif %}
 
 	#
 	#  Enforce daily limits on time spent logged in.
