@@ -1,0 +1,25 @@
+---
+certificate_password: '{{ semik_dev_cesnet_cz.p12pswd }}'
+ldap:
+  URL: ldaps://ldap1.cesnet.cz:636
+  CAChain: certs/chain_TERENA_SSL_CA_3.pem
+  eduroam:
+    bindDN: uid=rad1,ou=Special Users,dc=cesnet,dc=cz
+    bindPass: '{{ semik_dev_cesnet_cz.ldap_passwd }}'
+  peopleDN: dc=cesnet,dc=cz
+  peopleSubSearch: false
+  attrs:
+    uid: uid
+    eduroamPassword: radiusPassword
+eduroam:
+  IdP: 1
+  realm:
+    - semik-dev.cesnet.cz
+    - semik2-dev.cesnet.cz
+  ermon_secret: '{{ semik_dev_cesnet_cz.ermon_secret }}'
+  visCountry: CZ
+  topRADIUS:
+    CAChain: certs/chain_CESNET_CA3.pem
+    hostname: radius1.eduroam.cz
+    IP: 195.113.187.22
+  NAS: '{{ semik_dev_cesnet_cz.NAS }}'
