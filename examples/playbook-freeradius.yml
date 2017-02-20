@@ -1,0 +1,9 @@
+- name: load variables
+  hosts: eduroam
+  tasks:
+    - include_vars: group_vars/idp_vault.yml
+
+- name: install freeradius
+  hosts: eduroam
+  roles:
+    - freeradius
