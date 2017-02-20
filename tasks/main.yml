@@ -23,6 +23,20 @@
     - freeradius-common
     - freeradius-config
     - freeradius-utils
+    - pwgen
+
+- name: create salt for CUI
+  shell: pwgen 20 -n 1 > /etc/freeradius/cui_salt
+  args:
+    creates: /etc/freeradius/cui_salt
+
+- name: read salt for CUI
+  command: cat /etc/freeradius/cui_salt
+  register: cui_salt
+  changed_when: False
+  check_mode: no
+
+- set_fact: cui_salt={{ cui_salt.stdout }}
 
 # copy needed files
 - name: Copy freeRADIUS files 1/2
@@ -72,6 +86,8 @@
         dest: /etc/freeradius/mods-available/f_ticks }
     - { src: kill-weblogin.j2,
         dest: /etc/freeradius/policy.d/kill-weblogin }
+    - { src: cui.j2,
+        dest: /etc/freeradius/policy.d/cui }
   notify: restart freeradius
 
 - name: Copy templated freeRADIUS files (IdP role)
