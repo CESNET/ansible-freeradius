@@ -17,7 +17,7 @@ cp roles/freeradius/examples/chain_CESNET_CA3.pem files/certs/
 export ANSIBLE_INVENTORY=./inventory.conf
 
 ```
-Server na kterém roli testuji se jmenuje `semik-dev.cesnet.cz`. Vy musíte zeditovat soubor `inventory.conf` a by se odkazoval na váš server. Dále musíte přejmenovat soubor `host_vars/semik-dev.cesnet.cz.yml` podle vašeho serveru a následně nahradit v dotyčném souboru odkazy na `semik_dev_cesnet_cz`. Dále vytvořte soubor `group_vault/idp_vault.yml` s následujícím obsahem:
+Server, na kterém roli testuji, se jmenuje `semik-dev.cesnet.cz`. **Vy musíte upravit soubor `inventory.conf`, aby se odkazoval na váš server.** Dále musíte přejmenovat soubor `host_vars/semik-dev.cesnet.cz.yml` podle vašeho serveru (hostname -- FQDN) a následně nahradit v dotyčném souboru odkazy na `semik_dev_cesnet_cz`. Dále vytvořte soubor `group_vault/idp_vault.yml` s následujícím obsahem:
 
 ```
 semik_dev_cesnet_cz:
@@ -40,9 +40,9 @@ semik_dev_cesnet_cz:
 
 ```
 
-Konfigurační informace jsou rozděleny do dvou soubrů aby bylo možné oddělit důvěrné informace které stojí za šifrování pomocí ansible-vault a ty celkem veřejné. Dále předpokládám že v šifrovaném souboru `group_vault/idp_vault.yml` jsou sdíleny důvěrné informace dalších serverů a případně jiných rolí.
+Konfigurační informace jsou rozděleny do dvou souborů, aby bylo možné oddělit důvěrné informace, které stojí za šifrování pomocí ansible-vault, a ty celkem veřejné. Dále předpokládám že v šifrovaném souboru `group_vault/idp_vault.yml` jsou sdíleny důvěrné informace dalších serverů a případně jiných rolí.
 
 ## Certifikáty
-Role poředpokládá že RADIUS server používá pro spojení s národním RADIUS serverem ten samý certifikát jako pro (volitelnou) roli IdP. Certifikát musí být ve formátu PKCS#12, tento požadavek vychází z toho že sdílíme části kódu s playbookem pro Shibboleth (eduID.cz) a tam se to vyplatí, navíc takto šifrovaný certifikát lze uložit do veřejného GITu bez obavy z neužití. Soubor musí být umístěn v `files/semik-dev.cesnet.cz.p12` resp. adekvátně pojmenovaném souboru. Převody mezi PEM a PKCS#12 formátem ponechávám za domácí úkol.
+Role poředpokládá, že RADIUS server používá pro spojení s národním RADIUS serverem ten samý certifikát jako pro (volitelnou) roli IdP. Certifikát musí být ve formátu PKCS#12. Tento požadavek vychází ze sdílení části kódu s playbookem pro Shibboleth IdP (eduID.cz), kde je to vhodné a navíc takto šifrovaný certifikát lze uložit do veřejného GITu bez obavy ze zneužití. Soubor musí být umístěn v `files/semik-dev.cesnet.cz.p12`, resp. adekvátně pojmenovaném souboru. Převody mezi PEM a PKCS#12 formátem ponechávám za domácí úkol.
 
-Role dále pracuje s certifikáty pro ověření důvěry LDAP serveru, ty jsou odkazovány v `host_vars/semik-dev.cesnet.cz.yml` v proměné `ldap.CAChain`. A certifikám pro ověření nadřazeného RADIUS serveru. Ten je odkazován v `eduroam.topRADIUS.CAChain`. Role počítá s tím že nadřazeným RADIUSem není radius1.eduroam.cz ale obecný nadřazený RADIUS.
+Role dále pracuje s certifikáty pro ověření důvěry LDAP serveru. Ty jsou odkazovány v `host_vars/semik-dev.cesnet.cz.yml` v proměné `ldap.CAChain`. Pracuje také s certifikám pro ověření nadřazeného RADIUS serveru. Ten je odkazován v `eduroam.topRADIUS.CAChain`. Role počítá s tím, že nadřazeným RADIUSem není radius1.eduroam.cz, ale obecný nadřazený RADIUS.

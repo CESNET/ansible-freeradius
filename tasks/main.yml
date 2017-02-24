@@ -162,5 +162,5 @@
 - name: Copy detailed logs archivator
   copy: src=freeradius-monthly.sh dest=/usr/local/bin/freeradius-monthly.sh mode=0755 owner=root group=root backup=yes
 
-- name: Install detaied logs archivator into cron
+- name: Install detailed logs archivator into cron
   cron: day=7 hour=7 minute=54 job=/usr/local/bin/freeradius-monthly.sh name="detailed log archivation"
