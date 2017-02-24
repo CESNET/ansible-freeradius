@@ -142,7 +142,7 @@ filter_inner_identity {
 			#  We don't check for the full "anonymous", because
 			#  some vendors don't follow the standards.
 			#
-			if (&outer.request:User-Name !~ /^anonnymous@/) {
+			if (&outer.request:User-Name !~ /^anonymous@/) {
 				update request {
 					Module-Failure-Message = "User-Name is not anonymized"
 				}
