@@ -5,7 +5,7 @@
 ##
 ##  eap.conf -- Configuration for EAP types (PEAP, TTLS, etc.)
 ##
-##	$Id: 1b69550d28293a76de7c6aa7389ad318696b8509 $
+##     $Id: 427016c66da92b5aa87ac784e74550c4e723c0cd $
 
 #######################################################################
 #
@@ -324,12 +324,26 @@ eap {
 		# Set this option to specify the allowed
 		# TLS cipher suites.  The format is listed
 		# in "man 1 ciphers".
+                #
+                # For EAP-FAST, use "ALL:!EXPORT:!eNULL:!SSLv2"
+                #
 		cipher_list = "DEFAULT"
+
+                # If enabled, OpenSSL will use server cipher list
+                # (possibly defined by cipher_list option above)
+                # for choosing right cipher suite rather than
+                # using client-specified list which is OpenSSl default
+                # behavior. Having it set to yes is a current best practice
+                # for TLS
+                cipher_server_preference = no
 
 		# Work-arounds for OpenSSL nonsense
 		# OpenSSL 1.0.1f and 1.0.1g do not calculate
 		# the EAP keys correctly.  The fix is to upgrade
 		# OpenSSL, or disable TLS 1.2 here. 
+                #
+                #  For EAP-FAST, this MUST be set to "yes".
+                #
 #		disable_tlsv1_2 = no
 
 		#
@@ -435,8 +449,12 @@ eap {
 		#  the correct paths below to enable it.
 		#
 		#  If OCSP checking is enabled, and the OCSP checks fail,
-		#  the verify section is skipped.
+		#  the verify section is not run.
 		#
+                #
+                #  If OCSP checking is disabled, the verify section is
+                #  run on successful certificate validation.
+                #
 		verify {
 			#  If the OCSP checks succeed, the verify section
 			#  is run to allow additional checks.
@@ -826,4 +844,45 @@ eap {
 		#  identify it.
 #		identity = "FreeRADIUS"
 	}
+
+
+       ## EAP-FAST
+       #
+       #  The FAST module implements the EAP-FAST protocol
+       #
+#      fast {
+               # Point to the common TLS configuration
+               #
+               # cipher_list though must include "ADH" for anonymous provisioning.
+               # This is not as straight forward as appending "ADH" alongside
+               # "DEFAULT" as "DEFAULT" contains "!aNULL" so instead it is
+               # recommended "ALL:!EXPORT:!eNULL:!SSLv2" is used
+               #
+#              tls = tls-common
+
+               # PAC lifetime in seconds (default: seven days)
+               #
+#              pac_lifetime = 604800
+
+               # Authority ID of the server
+               #
+               # if you are running a cluster of RADIUS servers, you should make
+               # the value chosen here (and for "pac_opaque_key") the same on all
+               # your RADIUS servers.  This value should be unique to your
+               # installation.  We suggest using a domain name.
+               #
+#              authority_identity = "1234"
+
+               # PAC Opaque encryption key (must be exactly 32 bytes in size)
+               #
+               # This value MUST be secret, and MUST be generated using
+               # a secure method, such as via 'openssl rand -hex 32'
+               #
+#              pac_opaque_key = "0123456789abcdef0123456789ABCDEF"
+
+               # Same as for TTLS, PEAP, etc.
+               #
+#              virtual_server = inner-tunnel
+#      }
+
 }
