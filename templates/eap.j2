@@ -287,7 +287,7 @@ eap {
 		# Check if intermediate CAs have been revoked.
 	#	check_all_crl = yes
 
-		ca_path = ${cadir}
+		#ca_path = ${cadir}
 
 		#
 		#  If check_cert_issuer is set, the value will
@@ -394,7 +394,7 @@ eap {
 			#  If "enable = no" below, you CANNOT enable resumption for just one
 			#  user by setting the above attribute to "yes".
 			#
-			enable = yes
+			enable = no
 
 			#
 			#  Lifetime of the cached entries, in hours. The sessions will be
