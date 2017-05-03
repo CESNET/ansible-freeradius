@@ -1,6 +1,9 @@
 # REPO @ aaiwiki is using HTTPS.
-- name: Install apt-transport-https to be able use aaiwiki repo
-  apt: name=apt-transport-https state=latest
+- name: Install apt-transport-https & pwgen
+  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  with_items:
+    - pwgen
+    - apt-transport-https 
 
 - name: Add our FreeRADIUS repository
   apt_repository:
@@ -13,15 +16,11 @@
 
 # It is needed to list all FreeRADIUS packages. Without that are
 # updated only some of them.
-- name: Install freeradius
+- name: Install/update freeradius basic
   apt: name={{ item }} allow_unauthenticated=yes state=latest
-  with_items:
+  with_items: 
     - freeradius
     - freeradius-ldap
-    - freeradius-common
-    - freeradius-config
-    - freeradius-utils
-    - pwgen
 
 - name: create salt for CUI
   shell: pwgen 20 -n 1 > /etc/freeradius/cui_salt
