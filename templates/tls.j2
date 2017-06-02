@@ -113,7 +113,7 @@ listen {
 		#  not use client certificates, and you do not want
 		#  to permit EAP-TLS authentication, then delete
 		#  this configuration item.
-		ca_file = ${cadir}/topRADIUS_CAChain.pem
+		ca_file = {{ etc_freeradius }}/{{ eduroam.topRADIUS.CAChain }}
 
 		#
 		#  For DH cipher suites to work, you have to
@@ -443,7 +443,7 @@ home_server tls {
 		#  not use client certificates, and you do not want
 		#  to permit EAP-TLS authentication, then delete
 		#  this configuration item.
-		ca_file = ${cadir}/topRADIUS_CAChain.pem
+		ca_file = {{ etc_freeradius }}/{{ eduroam.topRADIUS.CAChain }}
 
 		#
 		#  For TLS-PSK, the key should be specified
@@ -525,7 +525,7 @@ home_server tls {
 	       #  TLS-Client-Cert-CN attribute.  This check
 	       #  can be done via any mechanism you choose.
 	       #
-	#	check_cert_cn = %{User-Name}
+		check_cert_cn = {{ eduroam.topRADIUS.hostname }}
 	#
 		# Set this option to specify the allowed
 		# TLS cipher suites.  The format is listed

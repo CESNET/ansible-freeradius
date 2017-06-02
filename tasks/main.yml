@@ -1,34 +1,53 @@
 # REPO @ aaiwiki is using HTTPS.
-- name: Install apt-transport-https & pwgen
+- name: Install apt-transport-https for aaiwiki repo
   apt: name={{ item }} allow_unauthenticated=yes state=latest
   with_items:
-    - pwgen
     - apt-transport-https 
+  when: ansible_distribution_release=='jessie'
 
 - name: Add our FreeRADIUS repository
   apt_repository:
     repo: deb https://aaiwiki.cesnet.cz/deb/jessie ./
     state: present
     update_cache: yes
+  when: ansible_distribution_release=='jessie'
 
 - name: Update repo cache
   apt: update_cache=yes cache_valid_time=5  #86400
 
-# It is needed to list all FreeRADIUS packages. Without that are
-# updated only some of them.
-- name: Install/update freeradius basic
+- name: Install pwgen
+  apt: name={{ item }} state=latest
+  with_items:
+    - pwgen
+
+- name: Install/update FreeRADIUS
   apt: name={{ item }} allow_unauthenticated=yes state=latest
   with_items: 
     - freeradius
+
+- name: Install/update FreeRADIUS LDAP module
+  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  when: eduroam.IdP
+  with_items: 
     - freeradius-ldap
 
+- name: set FreeRADIUS directory
+  set_fact:
+    etc_freeradius: /etc/freeradius
+
+# Tenhle stupidni adresar tam maji asi kvuli koexistenci s FR2
+- name: overwrite FreeRADIUS directory on stretch
+  set_fact:
+    etc_freeradius: /etc/freeradius/3.0
+  when: ansible_distribution_release=='stretch'
+
 - name: create salt for CUI
-  shell: pwgen 20 -n 1 > /etc/freeradius/cui_salt
+  shell: pwgen 20 -n 1 > "{{ etc_freeradius }}/cui_salt"
   args:
-    creates: /etc/freeradius/cui_salt
+    creates: "{{ etc_freeradius }}/cui_salt"
 
 - name: read salt for CUI
-  command: cat /etc/freeradius/cui_salt
+  command: cat "{{ etc_freeradius }}/cui_salt"
   register: cui_salt
   changed_when: False
   check_mode: no
@@ -36,55 +55,44 @@
 - set_fact: cui_salt={{ cui_salt.stdout }}
 
 # copy needed files
-- name: Copy freeRADIUS files 1/2
+- name: Copy freeRADIUS files
   copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
   with_items:
     - { src: freeradius.logrotate,
         dest: /etc/logrotate.d/freeradius }
-    - { src: certs/chain_CESNET_CA3.pem,
-        dest: /etc/freeradius/certs }
-    - { src: certs/chain_TERENA_SSL_CA_3.pem,
-        dest: /etc/freeradius/certs }
-    - { src: post-proxy,
-        dest: /etc/freeradius/mods-config/attr_filter/post-proxy }
-    - { src: filter,
-        dest: /etc/freeradius/policy.d/filter }
-    - { src: eduroam-realm-checks,
-        dest: /etc/freeradius/policy.d/eduroam-realm-checks }
-  notify: restart freeradius
-
-# it is posible that one of above certificate will never by used ...
-- name: Copy freeRADIUS files 2/2
-  copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
-  with_items:
     - { src: "{{ eduroam.topRADIUS.CAChain }}",
-        dest: /etc/freeradius/certs/topRADIUS_CAChain.pem }
-  when: eduroam.topRADIUS.CAChain is defined 
+        dest: "{{ etc_freeradius }}/certs" }
+    - { src: post-proxy,
+        dest: "{{ etc_freeradius }}/mods-config/attr_filter/post-proxy" }
+    - { src: filter,
+        dest: "{{ etc_freeradius }}/policy.d/filter" }
+    - { src: eduroam-realm-checks,
+        dest: "{{ etc_freeradius }}/policy.d/eduroam-realm-checks" }
   notify: restart freeradius
 
 - name: Copy templated freeRADIUS files
   template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
   with_items:
     - { src: default.j2,
-        dest: /etc/freeradius/sites-available/default }
+        dest: "{{ etc_freeradius }}/sites-available/default" }
     - { src: tls.j2,
-        dest: /etc/freeradius/sites-available/tls }
+        dest: "{{ etc_freeradius }}/sites-available/tls" }
     - { src: inner-tunnel.j2,
-        dest: /etc/freeradius/sites-available/inner-tunnel }
+        dest: "{{ etc_freeradius }}/sites-available/inner-tunnel" }
     - { src: clients.conf.j2,
-        dest: /etc/freeradius/clients.conf }
+        dest: "{{ etc_freeradius }}/clients.conf" }
     - { src: proxy.conf.j2,
-        dest: /etc/freeradius/proxy.conf }
+        dest: "{{ etc_freeradius }}/proxy.conf" }
     - { src: radiusd.conf.j2,
-        dest: /etc/freeradius/radiusd.conf }
+        dest: "{{ etc_freeradius }}/radiusd.conf" }
     - { src: eap.j2,
-        dest: /etc/freeradius/mods-available/eap }
+        dest: "{{ etc_freeradius }}/mods-available/eap" }
     - { src: f_ticks.j2,
-        dest: /etc/freeradius/mods-available/f_ticks }
+        dest: "{{ etc_freeradius }}/mods-available/f_ticks" }
     - { src: kill-weblogin.j2,
-        dest: /etc/freeradius/policy.d/kill-weblogin }
+        dest: "{{ etc_freeradius }}/policy.d/kill-weblogin" }
     - { src: cui.j2,
-        dest: /etc/freeradius/policy.d/cui }
+        dest: "{{ etc_freeradius }}/policy.d/cui" }
   notify: restart freeradius
 
 - name: Copy templated freeRADIUS files (IdP role)
@@ -92,26 +100,26 @@
   when: eduroam.IdP
   with_items:
     - { src: ldap.j2,
-        dest: /etc/freeradius/mods-available/ldap }
+        dest: "{{ etc_freeradius }}/mods-available/ldap" }
   notify: restart freeradius
 
 - name: remove useless files (SP only mode)
   file: dest={{ item }} owner=root group=root state=absent
   when: eduroam.IdP == 0
   with_items:
-    - /etc/freeradius/sites-enabled/inner-tunnel
-    - /etc/freeradius/mods-enabled/eap
+    - "{{ etc_freeradius }}/sites-enabled/inner-tunnel"
+    - "{{ etc_freeradius }}/mods-enabled/eap"
   notify: restart freeradius
 
 - name: link needed files
   file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
   with_items:
     - { src: ../sites-available/tls,
-        dest: /etc/freeradius/sites-enabled/tls }
+        dest: "{{ etc_freeradius }}/sites-enabled/tls" }
     - { src: ../mods-available/f_ticks,
-        dest: /etc/freeradius/mods-enabled/f_ticks }
+        dest: "{{ etc_freeradius }}/mods-enabled/f_ticks" }
     - { src: ../mods-available/cui,
-        dest: /etc/freeradius/mods-enabled/cui }
+        dest: "{{ etc_freeradius }}/mods-enabled/cui" }
   notify: restart freeradius
 
 - name: link needed files (IdP role)
@@ -119,11 +127,11 @@
   when: eduroam.IdP
   with_items:
     - { src: ../sites-available/inner-tunnel,
-        dest: /etc/freeradius/sites-enabled/inner-tunnel }
+        dest: "{{ etc_freeradius }}/sites-enabled/inner-tunnel" }
     - { src: ../mods-available/ldap,
-        dest: /etc/freeradius/mods-enabled/ldap }
+        dest: "{{ etc_freeradius }}/mods-enabled/ldap" }
     - { src: ../mods-available/eap,
-        dest: /etc/freeradius/mods-enabled/eap }
+        dest: "{{ etc_freeradius }}/mods-enabled/eap" }
   notify: restart freeradius
 
 # This is shitty, but we are using PKCS#12 instead of PEM because it
@@ -131,7 +139,7 @@
 # using similar ansible script to install Shibboleth IdP which is
 # using PKCS#12 in native form.
 - name: Copy PKCS#12 formated certificate & private key to server
-  copy: src="{{ ansible_fqdn }}.pkcs12" dest=/etc/freeradius/certs/ mode=0400 owner=freerad group=freerad backup=yes
+  copy: src="{{ ansible_fqdn }}.pkcs12" dest="{{ etc_freeradius }}/certs" mode=0400 owner=freerad group=freerad backup=yes
   register: certificate
 
 - name: Extract private key from PKCS#12
@@ -139,7 +147,7 @@
   environment:
     PKCS12_PSWD: "{{ certificate_password }}"
   args: 
-    chdir: /etc/freeradius/certs/
+    chdir: "{{ etc_freeradius }}/certs"
   when: certificate.changed
   notify: restart freeradius
 
@@ -148,15 +156,15 @@
   environment:
     PKCS12_PSWD: "{{ certificate_password }}"
   args: 
-    chdir: /etc/freeradius/certs/
+    chdir: "{{ etc_freeradius }}/certs"
   when: certificate.changed
   notify: restart freeradius
 
 - name: Correct cert file permisions
   file: path={{ item }} owner=freerad group=freerad mode=0400 state=file
   with_items:
-    - "/etc/freeradius/certs/{{ ansible_fqdn }}.crt"
-    - "/etc/freeradius/certs/{{ ansible_fqdn }}.key"
+    - "{{ etc_freeradius }}/certs/{{ ansible_fqdn }}.crt"
+    - "{{ etc_freeradius }}/certs/{{ ansible_fqdn }}.key"
 
 - name: Copy detailed logs archivator
   copy: src=freeradius-monthly.sh dest=/usr/local/bin/freeradius-monthly.sh mode=0755 owner=root group=root backup=yes
