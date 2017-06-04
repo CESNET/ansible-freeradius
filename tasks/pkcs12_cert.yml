@@ -1,0 +1,32 @@
+---
+# This is shitty, but we are using PKCS#12 instead of PEM because it
+# is easier to protect file by password. And mainly because we are
+# using similar ansible script to install Shibboleth IdP which is
+# using PKCS#12 in native form.
+- name: Copy PKCS#12 formated certificate & private key to server
+  copy: src="{{ ansible_fqdn }}.pkcs12" dest="{{ etc_freeradius }}/certs" mode=0400 owner=freerad group=freerad backup=yes
+  register: certificate
+
+- name: Extract private key from PKCS#12
+  shell: 'openssl pkcs12 -in "{{ ansible_fqdn }}.pkcs12" -out "{{ ansible_fqdn }}.key" -nocerts -nodes -passin env:PKCS12_PSWD'
+  environment:
+    PKCS12_PSWD: "{{ certificate_password }}"
+  args: 
+    chdir: "{{ etc_freeradius }}/certs"
+  when: certificate.changed
+  notify: restart freeradius
+
+- name: Extract certificate from PKCS#12
+  shell: 'openssl pkcs12 -in "{{ ansible_fqdn }}.pkcs12" -out "{{ ansible_fqdn }}.crt" -clcerts -nokeys -nodes -passin env:PKCS12_PSWD'
+  environment:
+    PKCS12_PSWD: "{{ certificate_password }}"
+  args: 
+    chdir: "{{ etc_freeradius }}/certs"
+  when: certificate.changed
+  notify: restart freeradius
+
+- name: Correct cert file permisions
+  file: path={{ item }} owner=freerad group=freerad mode=0400 state=file
+  with_items:
+    - "{{ etc_freeradius }}/certs/{{ ansible_fqdn }}.crt"
+    - "{{ etc_freeradius }}/certs/{{ ansible_fqdn }}.key"

@@ -83,7 +83,13 @@ listen {
 	#  to refer to the "site1" sub-section of the "tls" section.
 	#
 	tls {
-		#private_key_password = whatever
+{% if eduroam.radsec is defined %}
+{% if eduroam.radsec.private_key_password is defined %}
+		private_key_password = {{ eduroam.radsec.private_key_password }}
+{% endif %}
+		private_key_file = ${certdir}/radsec_{{ ansible_fqdn}}.key
+		certificate_file = ${certdir}/radsec_{{ ansible_fqdn}}.crt
+{% else %}
 		private_key_file = ${certdir}/{{ ansible_fqdn}}.key
 
 		#  If Private key & Certificate are located in
@@ -97,6 +103,7 @@ listen {
 		#  of the CA certificates used to sign the
 		#  server certificate.
 		certificate_file = ${certdir}/{{ ansible_fqdn}}.crt
+{% endif %}
 
 		#  Trusted Root CA list
 		#
@@ -413,7 +420,13 @@ home_server tls {
 	revive_interval = 60
 
 	tls {
-		#private_key_password = whatever
+{% if eduroam.radsec is defined %}
+{% if eduroam.radsec.private_key_password is defined %}
+		private_key_password = {{ eduroam.radsec.private_key_password }}
+{% endif %}
+		private_key_file = ${certdir}/radsec_{{ ansible_fqdn}}.key
+		certificate_file = ${certdir}/radsec_{{ ansible_fqdn}}.crt
+{% else %}
 		private_key_file = ${certdir}/{{ ansible_fqdn}}.key
 
 		#  If Private key & Certificate are located in
@@ -427,6 +440,7 @@ home_server tls {
 		#  of the CA certificates used to sign the
 		#  server certificate.
 		certificate_file = ${certdir}/{{ ansible_fqdn}}.crt
+{% endif %}
 
 		#  Trusted Root CA list
 		#

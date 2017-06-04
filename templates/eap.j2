@@ -173,7 +173,13 @@ eap {
 	#  ANYONE who has a certificate signed by them can
 	#  authenticate via EAP-TLS!  This is likely not what you want.
 	tls-config tls-common {
-		#private_key_password = whatever
+{% if eduroam.EAP is defined %}
+{% if eduroam.EAP.private_key_password is defined %}
+		private_key_password = {{ eduroam.EAP.private_key_password }}
+{% endif %}
+		private_key_file = ${certdir}/EAP_{{ ansible_fqdn}}.key
+		certificate_file = ${certdir}/EAP_{{ ansible_fqdn}}.crt
+{% else %}
 		private_key_file = ${certdir}/{{ ansible_fqdn}}.key
 
 		#  If Private key & Certificate are located in
@@ -187,6 +193,7 @@ eap {
 		#  of the CA certificates used to sign the
 		#  server certificate.
 		certificate_file = ${certdir}/{{ ansible_fqdn}}.crt
+{% endif %}
 
 		#  Trusted Root CA list
 		#
