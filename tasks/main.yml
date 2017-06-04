@@ -13,7 +13,7 @@
   when: ansible_distribution_release=='jessie'
 
 - name: Update repo cache
-  apt: update_cache=yes cache_valid_time=5  #86400
+  apt: update_cache=yes cache_valid_time=86400
 
 - name: Install pwgen
   apt: name={{ item }} state=latest
@@ -134,10 +134,15 @@
         dest: "{{ etc_freeradius }}/mods-enabled/eap" }
   notify: restart freeradius
 
+# Semik: Dokumentaci k volbe static jsem pochopil presne obracene :/
+# http://docs.ansible.com/ansible/playbooks_roles.html
+
 - include: pkcs12_cert.yml
+  static: no
   when: (eduroam.radsec.certificate is undefined) and (eduroam.EAP.certificate is undefined)
 
 - include: pem_cert.yml
+  static: no
   when: (eduroam.radsec.certificate is defined) and (eduroam.EAP.certificate is defined)
 
 - name: Copy detailed logs archivator
