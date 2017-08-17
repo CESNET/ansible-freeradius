@@ -657,8 +657,30 @@ home_server_pool my_auth_failover {
 #
 #
 
+{% if eduroam.mode == 'proxy' %}
+# this freeRADIUS server is in proxy mode
+{% for downRADIUS in eduroam.downRADIUS %}
+home_server {{ downRADIUS.hostname }} {
+  type = auth
+  ipaddr = {{ downRADIUS.ipaddr }}
+  port = 1812
+  secret = {{ downRADIUS.secret }}
+}
+
+{% endfor %}
+home_server_pool downRADIUSes {
+{% for downRADIUS in eduroam.downRADIUS %}
+  home_server = {{ downRADIUS.hostname }}
+{% endfor %}
+}
+
+{% endif %}
 {% for realm in eduroam.realm %}
 realm {{ realm }} {
+{% if eduroam.mode == 'proxy' %}
+  auth_pool = downRADIUSes
+  nostrip
+{% endif %}
 }
 {% endfor %}
 

@@ -285,3 +285,13 @@ client {{ eduroam.NAS[client].shortname }} {
 }
 {% endfor %}
 {% endif %}
+
+{% if eduroam.mode == 'proxy' %}
+{% for downRADIUS in eduroam.downRADIUS %}
+client {{ downRADIUS.hostname }} {
+       ipaddr    = {{ downRADIUS.ipaddr }}
+       secret    = {{ downRADIUS.secret }}
+       shortname = {{ downRADIUS.hostname }}
+}
+{% endfor %}
+{% endif %}

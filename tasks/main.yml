@@ -9,7 +9,7 @@
   apt_repository:
     repo: deb https://aaiwiki.cesnet.cz/deb/jessie ./
     state: present
-    update_cache: yes
+    #update_cache: yes
   when: ansible_distribution_release=='jessie'
 
 - name: Update repo cache
@@ -24,12 +24,6 @@
   apt: name={{ item }} allow_unauthenticated=yes state=latest
   with_items: 
     - freeradius
-
-- name: Install/update FreeRADIUS LDAP module
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  when: eduroam.IdP
-  with_items: 
-    - freeradius-ldap
 
 - name: set FreeRADIUS directory
   set_fact:
@@ -95,22 +89,6 @@
         dest: "{{ etc_freeradius }}/policy.d/cui" }
   notify: restart freeradius
 
-- name: Copy templated freeRADIUS files (IdP role)
-  template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
-  when: eduroam.IdP
-  with_items:
-    - { src: ldap.j2,
-        dest: "{{ etc_freeradius }}/mods-available/ldap" }
-  notify: restart freeradius
-
-- name: remove useless files (SP only mode)
-  file: dest={{ item }} owner=root group=root state=absent
-  when: eduroam.IdP == 0
-  with_items:
-    - "{{ etc_freeradius }}/sites-enabled/inner-tunnel"
-    - "{{ etc_freeradius }}/mods-enabled/eap"
-  notify: restart freeradius
-
 - name: link needed files
   file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
   with_items:
@@ -122,20 +100,21 @@
         dest: "{{ etc_freeradius }}/mods-enabled/cui" }
   notify: restart freeradius
 
-- name: link needed files (IdP role)
-  file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
-  when: eduroam.IdP
-  with_items:
-    - { src: ../sites-available/inner-tunnel,
-        dest: "{{ etc_freeradius }}/sites-enabled/inner-tunnel" }
-    - { src: ../mods-available/ldap,
-        dest: "{{ etc_freeradius }}/mods-enabled/ldap" }
-    - { src: ../mods-available/eap,
-        dest: "{{ etc_freeradius }}/mods-enabled/eap" }
-  notify: restart freeradius
-
 # Semik: Dokumentaci k volbe static jsem pochopil presne obracene :/
 # http://docs.ansible.com/ansible/playbooks_roles.html
+
+- name: IdP specific tasks
+  include: idp_mode.yml
+  static: no
+  when: eduroam.mode == 'IdP'
+
+- name: remove useless files (SP only or Proxy mode)
+  file: dest={{ item }} owner=root group=root state=absent
+  when: not (eduroam.mode == 'IdP')
+  with_items:
+    - "{{ etc_freeradius }}/sites-enabled/inner-tunnel"
+    - "{{ etc_freeradius }}/mods-enabled/eap"
+  notify: restart freeradius
 
 - include: pkcs12_cert.yml
   static: no
