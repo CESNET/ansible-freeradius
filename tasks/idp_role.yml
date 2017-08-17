@@ -1,0 +1,33 @@
+- name: Install/update FreeRADIUS LDAP module
+  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  when: eduroam.mode == 'IdP'
+  with_items: 
+    - freeradius-ldap
+
+- name: Copy templated freeRADIUS files (IdP role)
+  template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
+  with_items:
+    - { src: ldap.j2,
+        dest: "{{ etc_freeradius }}/mods-available/ldap" }
+  when: eduroam.mode == 'IdP'
+  notify: restart freeradius
+
+- name: Copy freeRADIUS files (IdP role)
+  copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
+  when: eduroam.mode == 'IdP'
+  with_items:
+    - { src: "{{ ldap.CAChain }}",
+        dest: "{{ etc_freeradius }}/certs" }
+  notify: restart freeradius
+
+- name: link needed files (IdP role)
+  file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
+  when: eduroam.mode == 'IdP'
+  with_items:
+    - { src: ../sites-available/inner-tunnel,
+        dest: "{{ etc_freeradius }}/sites-enabled/inner-tunnel" }
+    - { src: ../mods-available/ldap,
+        dest: "{{ etc_freeradius }}/mods-enabled/ldap" }
+    - { src: ../mods-available/eap,
+        dest: "{{ etc_freeradius }}/mods-enabled/eap" }
+  notify: restart freeradius
