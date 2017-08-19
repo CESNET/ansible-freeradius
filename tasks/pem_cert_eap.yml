@@ -1,11 +1,7 @@
 ---
-- name: Copy PEM certificates
+- name: Copy PEM certificates for EAP
   copy: src={{ item.src }} dest={{ item.dest }} mode=0400 owner=freerad group=freerad backup=yes
   with_items:
-    - { src: "{{ eduroam.radsec.certificate }}",
-        dest: "{{ etc_freeradius }}/certs/radsec_{{ ansible_fqdn }}.crt" }
-    - { src: "{{ eduroam.radsec.private_key }}",
-        dest: "{{ etc_freeradius }}/certs/radsec_{{ ansible_fqdn }}.key" }
     - { src: "{{ eduroam.EAP.certificate }}",
         dest: "{{ etc_freeradius }}/certs/EAP_{{ ansible_fqdn }}.crt" }
     - { src: "{{ eduroam.EAP.private_key }}",

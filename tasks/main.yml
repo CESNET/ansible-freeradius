@@ -122,13 +122,20 @@
     - "{{ etc_freeradius }}/mods-enabled/eap"
   notify: restart freeradius
 
-- include: pkcs12_cert.yml
+- name: PKCS#12 certs
+  include: pkcs12_cert.yml
   static: no
   when: (eduroam.radsec.certificate is undefined) and (eduroam.EAP.certificate is undefined)
 
-- include: pem_cert.yml
+- name: PEM certs for EAP
+  include: pem_cert_eap.yml
   static: no
-  when: (eduroam.radsec.certificate is defined) and (eduroam.EAP.certificate is defined)
+  when: eduroam.EAP.certificate is defined
+
+- name: PEM certs for RadSec
+  include: pem_cert_radsec.yml
+  static: no
+  when: eduroam.radsec.certificate is defined
 
 - name: Copy detailed logs archivator
   copy: src=freeradius-monthly.sh dest=/usr/local/bin/freeradius-monthly.sh mode=0755 owner=root group=root backup=yes

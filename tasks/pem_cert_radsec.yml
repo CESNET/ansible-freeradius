@@ -1,0 +1,9 @@
+---
+- name: Copy PEM certificates for RadSec
+  copy: src={{ item.src }} dest={{ item.dest }} mode=0400 owner=freerad group=freerad backup=yes
+  with_items:
+    - { src: "{{ eduroam.radsec.certificate }}",
+        dest: "{{ etc_freeradius }}/certs/radsec_{{ ansible_fqdn }}.crt" }
+    - { src: "{{ eduroam.radsec.private_key }}",
+        dest: "{{ etc_freeradius }}/certs/radsec_{{ ansible_fqdn }}.key" }
+  notify: restart freeradius
