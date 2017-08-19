@@ -324,7 +324,7 @@ authorize {
 	#  If you want to generate CUI for some clients that do not
 	#  send proper CUI requests, then uncomment the
 	#  cui below and set "add_cui = yes" for these clients in clients.conf
-{% if eduroam.mode = 'IdP' %}
+{% if eduroam.mode == 'IdP' %}
 	cui
 {% else %}
 #	cui
@@ -765,7 +765,7 @@ post-auth {
 
 	#  Create the CUI value and add the attribute to Access-Accept.
 	#  Uncomment the line below if *returning* the CUI.
-{% if eduroam.mode = 'IdP' %}
+{% if eduroam.mode == 'IdP' %}
 	cui
 {% else %}
 #	cui

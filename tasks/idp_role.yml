@@ -1,9 +1,3 @@
-- name: Install/update FreeRADIUS LDAP module
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  when: eduroam.mode == 'IdP'
-  with_items: 
-    - freeradius-ldap
-
 - name: Copy templated freeRADIUS files (IdP role)
   template: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=root group=root backup=yes
   with_items:

@@ -25,6 +25,12 @@
   with_items: 
     - freeradius
 
+- name: Install/update FreeRADIUS LDAP module
+  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  when: eduroam.mode == 'IdP'
+  with_items: 
+    - freeradius-ldap
+
 - name: set FreeRADIUS directory
   set_fact:
     etc_freeradius: /etc/freeradius
@@ -104,7 +110,7 @@
 # http://docs.ansible.com/ansible/playbooks_roles.html
 
 - name: IdP specific tasks
-  include: idp_mode.yml
+  include: idp_role.yml
   static: no
   when: eduroam.mode == 'IdP'
 
