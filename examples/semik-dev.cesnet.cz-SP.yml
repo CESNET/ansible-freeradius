@@ -1,0 +1,28 @@
+---
+eduroam:
+  mode: SP
+  realm:
+    - semik-dev.cesnet.cz
+  ermon_secret: '{{ semik_dev_cesnet_cz.ermon_secret }}'
+  visCountry: CZ
+  topRADIUS:
+    CAChain: certs/chain_CESNET_CA3.pem
+    hostname: radius1.eduroam.cz
+    IP: 195.113.187.22
+  radsec:
+    certificate: certs/semik-dev.cesnet.cz.crt
+    private_key: certs/semik-dev.cesnet.cz.key
+    private_key_password: "{{ semik_dev_cesnet_cz.radsec_key_password }}"
+  NAS:
+    192.168.1.1:
+      ipaddr: 192.168.1.1
+      secret: random-secret
+      shortname: WLC1
+    192.168.1.2:
+      ipaddr: 192.168.1.2
+      secret: random-secret2
+      shortname: WLC2
+    192.168.1.3:
+      ipaddr: 192.168.2.1/24
+      secret: random-secret3
+      shortname: AP_oldbuilding
