@@ -49,7 +49,7 @@ Role dále pracuje s certifikáty pro ověření důvěry LDAP serveru. Ty jsou 
 Pracuje také s certifikám pro ověření nadřazeného RADIUS serveru. Ten je odkazován v `eduroam.topRADIUS.CAChain`. Role počítá s tím, že nadřazeným RADIUSem není radius1.eduroam.cz, ale obecný nadřazený RADIUS.
 
 
-Spuštění:
+## Spuštění
 
 ```
 export ANSIBLE_INVENTORY=./inventory.conf
