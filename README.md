@@ -1,7 +1,7 @@
 # ansible-freeradius
 Ansible role pro instalaci FreeRADIUSu v roli IdP & SP, SP only anebo proxy pro eduroam.cz. Předpokladem úspěšného použítí je solidní znalost administrace Linuxu a alespoň základní znalost automatizované správy pomocí ansible.com.
 
-Role podporuje RadSec, Operator-Name, Chargeable-User-Identity, vynucení shody vnitřní a vnější identity. Dále umožní neEAP ověření pouze lokálním realmům (pro captive portály, pokud je fakt musíte používat).
+Role podporuje *RadSec*, *Operator-Name*, *Chargeable-User-Identity*, *vynucení shody vnitřní a vnější identity*. Dále umožní neEAP ověření pouze lokálním realmům (pro captive portály, pokud je fakt musíte používat).
 
 Předpokládám, že si roli ansible-freeradius vložíte do vlastního projektu. Pro jednoúčelové otestování stačí postupovat podle následujícího návodu. Vytvořte si libovolný adresář a proveďte:
 
@@ -20,7 +20,7 @@ Musíte upravit soubor `inventory.conf`, aby se odkazoval na váš server. Musí
  * [semik-dev.cesnet.cz-SP.yml](https://github.com/CESNET/ansible-freeradius/blob/master/examples/semik-dev.cesnet.cz-SP.yml) pro SP only instalaci
  * [semik-dev.cesnet.cz-proxy.yml](https://github.com/CESNET/ansible-freeradius/blob/master/examples/semik-dev.cesnet.cz-proxy.yml) proxy rezim kdy je domaci realm predavany na jiny RADIUS server
 
-Důvěrné informace o jsou do šifrovány ve vaultu, např:
+Důvěrné informace o konfiguraci serveru jsou šifrovány ve vaultu, např.:
 
 ```
 ldap:
@@ -28,7 +28,7 @@ ldap:
     bindPass: "{{ semik_dev_cesnet_cz.LDAP_bindPass }}"
 ```
 
-Vytvořte si `group_vars/idp_vault.yml` s následujícím obsahem jen změňte odkaz na svůj hostname:
+Vytvořte si `group_vars/idp_vault.yml` s následujícím obsahem, jen změňte první řádek na svůj hostname (**tečky a případné pomlčky musíte nahradit podtržítky, tzn. `semik-dev.cesnet.cz` bude `semik_dev_cesnet_cz`**):
 
 ```
 semik_dev_cesnet_cz:
@@ -37,16 +37,16 @@ semik_dev_cesnet_cz:
 
 ```
 
-Konfigurační informace jsou rozděleny do dvou souborů, aby bylo možné oddělit důvěrné informace, které stojí za šifrování pomocí ansible-vault, a ty celkem veřejné. Navíc předpokládám že v šifrovaném souboru `group_vars/idp_vault.yml` jsou sdíleny důvěrné informace dalších serverů a případně jiných rolí.
+Konfigurační informace jsou rozděleny do dvou souborů, aby bylo možné oddělit důvěrné informace, které stojí za šifrování pomocí ansible-vault, a ty celkem veřejné. Navíc předpokládám, že v šifrovaném souboru `group_vars/idp_vault.yml` jsou sdíleny důvěrné informace dalších serverů a případně jiných rolí.
 
 ## Certifikáty
 V případě použití PKCS#12 formátu role poředpokládá, že RADIUS server používá pro spojení s národním RADIUS serverem ten samý certifikát jako pro (volitelnou) roli IdP. Tento požadavek vychází ze sdílení části kódu s playbookem pro Shibboleth IdP (eduID.cz), kde je to vhodné a navíc takto šifrovaný certifikát lze uložit do veřejného GITu bez obavy ze zneužití. Soubor musí být umístěn v `files/semik-dev.cesnet.cz.p12`, resp. adekvátně pojmenovaném souboru.
 
-FreeRADIUS používá PEM formát pro certifikáty, v takovém případě je očekává v files/certs/hostname.(crt|key), lze použít různé certifikáty pro RadSec a EAP což bude asi častý případ.
+FreeRADIUS používá PEM formát pro certifikáty, v takovém případě je očekává v `files/certs/hostname.{crt,key}`, lze použít různé certifikáty pro RadSec a EAP, což bude asi častý případ.
 
 Role dále pracuje s certifikáty pro ověření důvěry LDAP serveru. Ty jsou odkazovány v `host_vars/semik-dev.cesnet.cz.yml` v proměné `ldap.CAChain`. 
 
-Pracuje také s certifikám pro ověření nadřazeného RADIUS serveru. Ten je odkazován v `eduroam.topRADIUS.CAChain`. Role počítá s tím, že nadřazeným RADIUSem není radius1.eduroam.cz, ale obecný nadřazený RADIUS.
+Pracuje také s certifikám pro ověření nadřazeného RADIUS serveru. Ten je odkazován v `eduroam.topRADIUS.CAChain`. Role počítá s tím, že nadřazeným RADIUSem není `radius1.eduroam.cz`, ale obecný nadřazený RADIUS.
 
 
 ## Spuštění
