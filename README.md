@@ -28,7 +28,7 @@ ldap:
     bindPass: "{{ semik_dev_cesnet_cz.LDAP_bindPass }}"
 ```
 
-Vytvořte si `group_vault/idp_vault.yml` s následujícím obsahem jen změňte odkaz na svůj hostname:
+Vytvořte si `group_vars/idp_vault.yml` s následujícím obsahem jen změňte odkaz na svůj hostname:
 
 ```
 semik_dev_cesnet_cz:
@@ -37,7 +37,7 @@ semik_dev_cesnet_cz:
 
 ```
 
-Konfigurační informace jsou rozděleny do dvou souborů, aby bylo možné oddělit důvěrné informace, které stojí za šifrování pomocí ansible-vault, a ty celkem veřejné. Navíc předpokládám že v šifrovaném souboru `group_vault/idp_vault.yml` jsou sdíleny důvěrné informace dalších serverů a případně jiných rolí.
+Konfigurační informace jsou rozděleny do dvou souborů, aby bylo možné oddělit důvěrné informace, které stojí za šifrování pomocí ansible-vault, a ty celkem veřejné. Navíc předpokládám že v šifrovaném souboru `group_vars/idp_vault.yml` jsou sdíleny důvěrné informace dalších serverů a případně jiných rolí.
 
 ## Certifikáty
 V případě použití PKCS#12 formátu role poředpokládá, že RADIUS server používá pro spojení s národním RADIUS serverem ten samý certifikát jako pro (volitelnou) roli IdP. Tento požadavek vychází ze sdílení části kódu s playbookem pro Shibboleth IdP (eduID.cz), kde je to vhodné a navíc takto šifrovaný certifikát lze uložit do veřejného GITu bez obavy ze zneužití. Soubor musí být umístěn v `files/semik-dev.cesnet.cz.p12`, resp. adekvátně pojmenovaném souboru.
