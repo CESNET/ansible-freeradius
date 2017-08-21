@@ -25,7 +25,7 @@ Důvěrné informace o konfiguraci serveru jsou šifrovány ve vaultu, např.:
 ```
 ldap:
   eduroam:
-    bindPass: "{{ semik_dev_cesnet_cz.LDAP_bindPass }}"
+    bindPass: "{{ semik_dev_cesnet_cz.ldap_passwd }}"
 ```
 
 Vytvořte si `group_vars/idp_vault.yml` s následujícím obsahem, jen změňte první řádek na svůj hostname (**tečky a případné pomlčky musíte nahradit podtržítky, tzn. `semik-dev.cesnet.cz` bude `semik_dev_cesnet_cz`**):
@@ -33,7 +33,9 @@ Vytvořte si `group_vars/idp_vault.yml` s následujícím obsahem, jen změňte 
 ```
 semik_dev_cesnet_cz:
   ermon_secret: sdílené heslo k ermon.cesnet.cz
-  LDAP_bindPass: heslo k LDAP uctu
+  ldap_passwd: heslo k LDAP uctu
+  radsec_key_password: heslo k privatnimu klici pro radsec
+  eap_key_password: heslo k privatnimu klici pro eap
 
 ```
 
