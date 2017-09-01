@@ -14,7 +14,7 @@ cp roles/freeradius/examples/ansible.cfg .
 cp roles/freeradius/examples/chain_TERENA_SSL_CA_3.pem files/certs/
 cp roles/freeradius/examples/chain_CESNET_CA3.pem files/certs/
 ```
-Musíte upravit soubor `inventory.conf`, aby se odkazoval na váš server. Musíte vyvořit soubor `host_vars/vas-radius.realm.cz.yml`, jako vzor použijte soboury (vysvětlivky k obsahu)[Parameters.md]:
+Musíte upravit soubor `inventory.conf`, aby se odkazoval na váš server. Musíte vyvořit soubor `host_vars/vas-radius.realm.cz.yml`, jako vzor použijte soboury (vysvětlivky k obsahu)[./Parameters.md]:
  * [semik-dev.cesnet.cz-IdP-PKCS12.yml](https://github.com/CESNET/ansible-freeradius/blob/master/examples/semik-dev.cesnet.cz-IdP-PKCS12.yml) pro IdP & SP s certifikátem ve formátu PKCS#12
  * [semik-dev.cesnet.cz-IdP.yml](https://github.com/CESNET/ansible-freeradius/blob/master/examples/semik-dev.cesnet.cz-IdP.yml) pro IdP & SP s certifikátem v běžnějším PEM formátu
  * [semik-dev.cesnet.cz-SP.yml](https://github.com/CESNET/ansible-freeradius/blob/master/examples/semik-dev.cesnet.cz-SP.yml) pro SP only instalaci
