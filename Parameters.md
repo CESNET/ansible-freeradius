@@ -75,7 +75,7 @@ Popisuje parametry FR v rámci eduroamu
 
 ### eduroam.mode
 
-Režim zapojení serveru, možnosti jsou: `proxy`, `SP`, `IdP`.
+Režim zapojení serveru, možnosti jsou: `proxy`, `SP`, `IdPSP`.
 
 ### eduroam.realm 
 

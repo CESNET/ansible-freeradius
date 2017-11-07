@@ -27,7 +27,7 @@
 
 - name: Install/update FreeRADIUS LDAP module
   apt: name={{ item }} allow_unauthenticated=yes state=latest
-  when: eduroam.mode == 'IdP'
+  when: eduroam.mode == 'IdPSP'
   with_items: 
     - freeradius-ldap
 
@@ -109,14 +109,14 @@
 # Semik: Dokumentaci k volbe static jsem pochopil presne obracene :/
 # http://docs.ansible.com/ansible/playbooks_roles.html
 
-- name: IdP specific tasks
+- name: IdPSP specific tasks
   include: idp_role.yml
   static: no
-  when: eduroam.mode == 'IdP'
+  when: eduroam.mode == 'IdPSP'
 
 - name: remove useless files (SP only or Proxy mode)
   file: dest={{ item }} owner=root group=root state=absent
-  when: not (eduroam.mode == 'IdP')
+  when: not (eduroam.mode == 'IdPSP')
   with_items:
     - "{{ etc_freeradius }}/sites-enabled/inner-tunnel"
     - "{{ etc_freeradius }}/mods-enabled/eap"

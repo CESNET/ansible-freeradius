@@ -11,7 +11,7 @@ ldap:
     uid: uid
     eduroamPassword: radiusPassword
 eduroam:
-  mode: IdP
+  mode: IdPSP
   realm:
     - semik-dev.cesnet.cz
     - semik2-dev.cesnet.cz
