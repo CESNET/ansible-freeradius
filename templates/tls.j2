@@ -5,7 +5,7 @@
 #  Initial implementation of RADIUS over TLS (radsec)
 #
 ######################################################################
-{% if eduroam.mode == 'IdP' or eduroam.mode == 'proxy' %}
+{% if eduroam.mode == 'IdPSP' or eduroam.mode == 'proxy' %}
 listen {
 	ipaddr = *
 	port = 2083
@@ -353,7 +353,7 @@ listen {
 	}
 }
 {% else %}
-# listen section removed, eduroam.mode = 'IdP' is not defined
+# listen section removed, eduroam.mode = 'IdPSP' is not defined
 {% endif %}
 
 clients radsec {

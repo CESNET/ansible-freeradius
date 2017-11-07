@@ -324,7 +324,7 @@ authorize {
 	#  If you want to generate CUI for some clients that do not
 	#  send proper CUI requests, then uncomment the
 	#  cui below and set "add_cui = yes" for these clients in clients.conf
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
 	cui
 {% else %}
 #	cui
@@ -399,13 +399,13 @@ authorize {
         #  uncomment it as well; this will further reduce the number of
         #  LDAP and/or SQL queries for TTLS or PEAP.
 	#
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
 	eap {
 		ok = return
                 updated = return
 	}
 {% else %}
-        # eap module disabled, eduoram.mode = 'IdP' is not defined
+        # eap module disabled, eduoram.mode = 'IdPSP' is not defined
 {% endif %}
 
 	#
@@ -436,7 +436,7 @@ authorize {
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
         if ({% for realm in eduroam.realm %}&User-Name =~ /@{{ realm }}/ || {% endfor %}false) {
 	  ldap
         }
@@ -552,7 +552,7 @@ authenticate {
 	#	ldap
 	#}
 
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
 	#
 	#  Allow EAP authentication.
 	eap
@@ -570,7 +570,7 @@ authenticate {
                 }
         }
 {% else %}
-        # eap module disabled, eduoram.mode = 'IdP' is not defined
+        # eap module disabled, eduoram.mode = 'IdPSP' is not defined
 {% endif %}
 
 	#
@@ -765,7 +765,7 @@ post-auth {
 
 	#  Create the CUI value and add the attribute to Access-Accept.
 	#  Uncomment the line below if *returning* the CUI.
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
 	cui
 {% else %}
 #	cui
@@ -892,10 +892,10 @@ post-auth {
 		# Insert EAP-Failure message if the request was
 		# rejected by policy instead of because of an
 		# authentication failure
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
 		eap
 {% else %}
-   	        # eap module disabled, eduroam.mode == 'IdP' is not defined
+   	        # eap module disabled, eduroam.mode == 'IdPSP' is not defined
 {% endif %}
 
 		#  Remove reply message if the response contains an EAP-Message
@@ -968,10 +968,10 @@ post-proxy {
 	#  hidden inside of the EAP packet, and the end server will
 	#  reject the EAP request.
 	#
-{% if eduroam.mode == 'IdP' %}
+{% if eduroam.mode == 'IdPSP' %}
 	eap
 {% else %}
-        # eap module disabled, eduoram.mode == 'IdP' is not defined
+        # eap module disabled, eduoram.mode == 'IdPSP' is not defined
 {% endif %}
 
 	#
