@@ -158,7 +158,7 @@ ldap {
 
 		#  Filter for user objects, should be specific enough
 		#  to identify a single user object.
-{% raw %}		filter = "(uid=%{%{Stripped-User-Name}:-%{User-Name}})"{% endraw %}
+		filter = "({{ldap.attrs.uid}}{% raw %}=%{%{Stripped-User-Name}:-%{User-Name}})"{% endraw %}
 
 		#  SASL parameters to use for user binds
 		#
