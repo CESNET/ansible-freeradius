@@ -6,7 +6,6 @@ ldap:
     bindDN: uid=rad1,ou=Special Users,dc=cesnet,dc=cz
     bindPass: '{{ semik_dev_cesnet_cz.ldap_passwd }}'
   peopleDN: dc=cesnet,dc=cz
-  peopleSubSearch: false
   attrs:
     uid: uid
     eduroamPassword: radiusPassword
