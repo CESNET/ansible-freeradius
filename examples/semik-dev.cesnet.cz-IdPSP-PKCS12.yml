@@ -23,15 +23,18 @@ eduroam:
     hostname: radius1.eduroam.cz
     IP: 195.113.187.22
   NAS:
-    192.168.1.1:
-      ipaddr: 192.168.1.1
-      secret: random-secret
-      shortname: WLC1
-    192.168.1.2:
-      ipaddr: 192.168.1.2
-      secret: random-secret2
-      shortname: WLC2
-    192.168.1.3:
-      ipaddr: 192.168.2.1/24
-      secret: random-secret3
-      shortname: AP_oldbuilding
+    - {
+      ipaddr: "192.168.1.1",
+      secret: "random-secret",
+      shortname: "WLC1"
+    }
+    - {
+      ipaddr: "192.168.1.2",
+      secret: "random-secret2",
+      shortname: "WLC2"
+    }
+    - {
+      ipaddr: "192.168.2.1/24",
+      secret: "random-secret3",
+      shortname: "AP_oldbuilding"
+    }
