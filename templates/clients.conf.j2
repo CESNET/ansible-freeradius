@@ -278,10 +278,10 @@ client ermon.cesnet.cz {
 
 {% if eduroam.NAS is defined %}
 {% for client in eduroam.NAS %}
-client {{ eduroam.NAS[client].shortname }} {
-       ipaddr    = {{ eduroam.NAS[client].ipaddr }}
-       secret    = {{ eduroam.NAS[client].secret }}      
-       shortname = {{ eduroam.NAS[client].shortname }}       
+client {{ client.shortname }} {
+       ipaddr    = {{ client.ipaddr }}
+       secret    = {{ client.secret }}
+       shortname = {{ client.shortname }}
 }
 {% endfor %}
 {% endif %}
