@@ -289,6 +289,9 @@ authorize {
 	#  Stop weblogin except of localrealms
 	kill_weblogin
 
+	# normalize MAC address to common format
+	rewrite_calling_station_id
+
 	update request {
 	       # the literal number "1" above is an important prefix! Do not change it!
                Operator-Name := "1{{eduroam.realm|first}}"
@@ -332,7 +335,7 @@ authorize {
 
 
 	# exclude monitoring records from auth_log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
+	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
 		auth_log
 	}{% endraw %}
 
@@ -564,7 +567,7 @@ authenticate {
                         handled = 1
                 }
                 # record access-chalenge & exclude monitoring records from log
-                if (handled && Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/) {
+                if (handled && Calling-Station-Id !~ /^70-6F-6C-69-/) {
                         reply_log.post-auth
                         handled  # override rcode (maybe superfluous)
                 }
@@ -596,6 +599,9 @@ authenticate {
 #
 preacct {
 	preprocess
+
+	# normalize MAC address to common format
+	rewrite_calling_station_id
 
 	#
 	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
@@ -772,7 +778,7 @@ post-auth {
 {% endif %}
 
 	# exclude monitoring records from log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-|^70-6f-6c-69-|^706f6c69|^706f\.6c69/ || "%{%{State}:-NONE}" == "NONE") {
+	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-/ || "%{%{State}:-NONE}" == "NONE") {
 		reply_log
 		f_ticks
 	}{% endraw %}
