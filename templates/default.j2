@@ -778,10 +778,10 @@ post-auth {
 {% endif %}
 
 	# exclude monitoring records from log
-	{% raw %}if (Calling-Station-Id !~ /^70-6F-6C-69-/ || "%{%{State}:-NONE}" == "NONE") {
+	if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
 		reply_log
 		f_ticks
-	}{% endraw %}
+	}
 
 	#
 	#  After authenticating the user, do another SQL query.
