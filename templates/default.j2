@@ -907,6 +907,12 @@ post-auth {
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
 	}
+
+        Post-Auth-Type CHALLENGE {
+           if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
+	      auth_log
+	   }
+        }
 }
 
 #
