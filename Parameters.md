@@ -39,9 +39,7 @@ uživatelů. Aby fungoval PEAP-MSCHAPv2 tak to heslo musí být v
 ### ldap.peopleDN
 
 DN od kterého se začínají hledat uživatelé. Používá se hledání
-[`scope: one`](https://www.ldap.com/the-ldap-search-operation) Pokud
-nejsou uživatelé přímo pod tímto DN je nutné nastavit
-`ldap.peopleSubSearch: true` jinak se uživatelé nenajdou.
+[`scope: one`](https://www.ldap.com/the-ldap-search-operation).
 
 ### ldap.attrs.uid
 
