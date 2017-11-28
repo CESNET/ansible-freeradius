@@ -137,6 +137,9 @@
   static: no
   when: eduroam.radsec.certificate is defined
 
+- name: rad_eap_test
+  include: rad_eap_test.yml
+
 - name: Copy detailed logs archivator
   copy: src=freeradius-monthly.sh dest=/usr/local/bin/freeradius-monthly.sh mode=0755 owner=root group=root backup=yes
 
