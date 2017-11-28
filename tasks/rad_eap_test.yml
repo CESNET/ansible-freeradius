@@ -18,5 +18,5 @@
     url: https://aaiwiki.cesnet.cz/idp_files/eapol_test-2.5-stretch
     dest: /usr/local/bin/eapol_test
     mode: 0755
-    checksum: "sha256:7aa9fa552aa7b29a8335fba7e249052637ac05dd8dc7089899a422919fed2186"
+    checksum: "sha256:b426ed8144967ba487c28471dc327c55edbafead6738f043ed98b9f34b1ee0c0"
   when: ansible_distribution_release=='stretch'
