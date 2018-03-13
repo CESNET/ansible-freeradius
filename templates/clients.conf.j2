@@ -275,6 +275,7 @@ client ermon.cesnet.cz {
        secret    = {{ eduroam.ermon_secret }}
        shortname = ermon
        add_cui   = yes
+       Operator-Name = 1{{eduroam.realm|first}}
 }
 
 {% if eduroam.NAS is defined %}
@@ -284,6 +285,7 @@ client {{ client.shortname }} {
        secret    = {{ client.secret }}      
        shortname = {{ client.shortname }}       
        add_cui   = yes
+       Operator-Name = 1{{eduroam.realm|first}}
 }
 {% endfor %}
 {% endif %}
@@ -295,6 +297,7 @@ client {{ downRADIUS.hostname }} {
        secret    = {{ downRADIUS.secret }}
        shortname = {{ downRADIUS.hostname }}
        add_cui   = yes
+       Operator-Name = 1{{eduroam.realm|first}}
 }
 {% endfor %}
 {% endif %}
