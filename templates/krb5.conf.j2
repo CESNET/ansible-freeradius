@@ -1,0 +1,26 @@
+# Do not modify by hand! Ansible managed.
+
+[libdefaults]
+        default_realm = {{ msAD.default_realm }}
+        dns_lookup_realm = false
+        dns_lookup_kdc = false
+
+[realms]
+        {{ msAD.default_realm }} = {
+                kdc = {{ msAD.kdc_ip }}
+                admin_server = {{ msAD.admin_server }}
+                default_domain = {{ msAD.default_realm|lower }}
+        }
+
+[domain_realm]
+        .{{ msAD.default_realm|lower }} = {{ msAD.default_realm }}
+        {{ msAD.default_realm|lower }} = {{ msAD.default_realm }}
+
+[appdefaults]
+        pam = {
+                debug = false
+                ticket_lifetime = 36000
+                renew_lifetime = 36000
+                forwardable = true
+                krb4_convert = false
+        }
