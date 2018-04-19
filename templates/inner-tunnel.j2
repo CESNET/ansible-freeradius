@@ -157,7 +157,12 @@ authorize {
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
+{% if ldap is defined %}
 	ldap
+{% else %}
+# ldap data are not defined in host_vars
+#       ldap
+{% endif %}
 
 	#
 	#  Enforce daily limits on time spent logged in.

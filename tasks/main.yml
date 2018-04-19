@@ -25,11 +25,23 @@
   with_items: 
     - freeradius
 
+- name: Enable FreeRADIUS
+  systemd: name=freeradius.service enabled=yes
+
 - name: Install/update FreeRADIUS LDAP module
   apt: name={{ item }} allow_unauthenticated=yes state=latest
-  when: eduroam.mode == 'IdPSP'
+  when: (eduroam.mode == 'IdPSP') and (ldap is defined)
   with_items: 
     - freeradius-ldap
+
+- name: Install/update stuff for M$ AD
+  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  when: (eduroam.mode == 'IdPSP') and (msAD is defined)
+  with_items:
+    - samba
+    - winbind
+    - krb5-config
+    - krb5-user
 
 - name: set FreeRADIUS directory
   set_fact:
@@ -93,6 +105,8 @@
         dest: "{{ etc_freeradius }}/policy.d/kill-weblogin" }
     - { src: cui.j2,
         dest: "{{ etc_freeradius }}/policy.d/cui" }
+    - { src: mschap.j2,
+        dest: "{{ etc_freeradius }}/mods-available/mschap" }
   notify: restart freeradius
 
 - name: link needed files
@@ -109,10 +123,15 @@
 # Semik: Dokumentaci k volbe static jsem pochopil presne obracene :/
 # http://docs.ansible.com/ansible/playbooks_roles.html
 
-- name: IdPSP specific tasks
+- name: IdPSP LDAP specific tasks
   include: idp_role.yml
   static: no
-  when: eduroam.mode == 'IdPSP'
+  when: (eduroam.mode == 'IdPSP') and (ldap is defined)
+
+- name: IdPSP M$ AD specific tasks
+  include: idp_msad_role.yml
+  static: no
+  when: (eduroam.mode == 'IdPSP') and (msAD is defined)
 
 - name: remove useless files (SP only or Proxy mode)
   file: dest={{ item }} owner=root group=root state=absent
