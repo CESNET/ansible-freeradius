@@ -684,7 +684,7 @@ home_server_pool downRADIUSes {
 
 {% endif %}
 
-{% if (eduroam.mode == 'proxy') or (eduroam.mode == 'IdP') %}
+{% if (eduroam.mode == 'proxy') or (eduroam.mode == 'IdPSP') %}
 {% for realm in eduroam.realm %}
 realm {{ realm }} {
 {% if eduroam.mode == 'proxy' %}

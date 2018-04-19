@@ -440,7 +440,7 @@ authorize {
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
-{% if eduroam.mode == 'IdPSP' %}
+{% if (eduroam.mode == 'IdPSP') and (ldap is defined) %}
         if ({% for realm in eduroam.realm %}&User-Name =~ /@{{ realm }}/ || {% endfor %}false) {
 	  ldap
         }
