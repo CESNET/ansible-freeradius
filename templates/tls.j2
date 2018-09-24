@@ -389,7 +389,14 @@ clients radsec {
 	       ipaddr = {{ eduroam.topRADIUS.IP }}
 	       proto = tls             
                secret = radsec      
-        }    
+        }
+{% if eduroam.radsecPeers is defined %}{% for radsecPeer in eduroam.radsecPeers %}
+        client {{ radsecPeer.hostname }} {
+               ipaddr = {{ radsecPeer.ipaddr }}
+               proto = tls
+               secret = radsec
+	}
+{% endfor %}{% endif %}
 }
 
 home_server tls {
