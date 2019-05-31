@@ -114,17 +114,12 @@
         dest: "{{ etc_freeradius }}/mods-enabled/cui" }
   notify: restart freeradius
 
-# Semik: Dokumentaci k volbe static jsem pochopil presne obracene :/
-# http://docs.ansible.com/ansible/playbooks_roles.html
-
 - name: IdPSP LDAP specific tasks
-  include: idp_role.yml
-  static: no
+  include_tasks: idp_role.yml
   when: (eduroam.mode == 'IdPSP') and (ldap is defined)
 
 - name: IdPSP M$ AD specific tasks
-  include: idp_msad_role.yml
-  static: no
+  include_tasks: idp_msad_role.yml
   when: (eduroam.mode == 'IdPSP') and (msAD is defined)
 
 - name: remove useless files (SP only or Proxy mode)
@@ -136,19 +131,16 @@
   notify: restart freeradius
 
 - name: PKCS#12 certs
-  include: pkcs12_cert.yml
-  static: no
+  include_tasks: pkcs12_cert.yml
   when: ((eduroam.radsec is defined) and (eduroam.radsec.certificate is undefined)) and
         ((eduroam.EAP is defined) and (eduroam.EAP.certificate is undefined))
 
 - name: PEM certs for EAP
-  include: pem_cert_eap.yml
-  static: no
+  include_tasks: pem_cert_eap.yml
   when: (eduroam.EAP is defined) and (eduroam.EAP.certificate is defined)
 
 - name: PEM certs for RadSec
-  include: pem_cert_radsec.yml
-  static: no
+  include_tasks: pem_cert_radsec.yml
   when: eduroam.radsec.certificate is defined
 
 - name: rad_eap_test
