@@ -144,12 +144,13 @@
 - name: PKCS#12 certs
   include: pkcs12_cert.yml
   static: no
-  when: (eduroam.radsec.certificate is undefined) and (eduroam.EAP.certificate is undefined)
+  when: ((eduroam.radsec is defined) and (eduroam.radsec.certificate is undefined)) and
+        ((eduroam.EAP is defined) and (eduroam.EAP.certificate is undefined))
 
 - name: PEM certs for EAP
   include: pem_cert_eap.yml
   static: no
-  when: eduroam.EAP.certificate is defined
+  when: (eduroam.EAP is defined) and (eduroam.EAP.certificate is defined)
 
 - name: PEM certs for RadSec
   include: pem_cert_radsec.yml
