@@ -1,8 +1,6 @@
 # REPO @ aaiwiki is using HTTPS.
 - name: Install apt-transport-https for aaiwiki repo
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  with_items:
-    - apt-transport-https 
+  apt: name=apt-transport-https allow_unauthenticated=yes state=latest
   when: ansible_distribution_release=='jessie'
 
 - name: Add our FreeRADIUS repository
@@ -16,32 +14,28 @@
   apt: update_cache=yes cache_valid_time=86400
 
 - name: Install pwgen
-  apt: name={{ item }} state=latest
-  with_items:
-    - pwgen
+  apt: name=pwgen state=latest
 
 - name: Install/update FreeRADIUS
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  with_items: 
-    - freeradius
+  apt: name=freeradius allow_unauthenticated=yes state=latest
 
 - name: Enable FreeRADIUS
   systemd: name=freeradius.service enabled=yes
 
 - name: Install/update FreeRADIUS LDAP module
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  apt: name=freeradius-ldap allow_unauthenticated=yes state=latest
   when: (eduroam.mode == 'IdPSP') and (ldap is defined)
-  with_items: 
-    - freeradius-ldap
 
 - name: Install/update stuff for M$ AD
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
+  apt:
+    name:
+      - 'samba'
+      - 'winbind'
+      - 'krb5-config'
+      - 'krb5-user'
+    allow_unauthenticated: yes
+    state: latest
   when: (eduroam.mode == 'IdPSP') and (msAD is defined)
-  with_items:
-    - samba
-    - winbind
-    - krb5-config
-    - krb5-user
 
 - name: set FreeRADIUS directory
   set_fact:
