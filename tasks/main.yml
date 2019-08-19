@@ -36,10 +36,16 @@
     etc_freeradius: /etc/freeradius
 
 # Tenhle stupidni adresar tam maji asi kvuli koexistenci s FR2
+# Semik: TODO evidentne na debianu bude konfigurace v 3.0 podadresari
+# i do budoucna, takze by bylo lepsi to nastavit jako default a menit jen
+# kdyz bude distribuce jessie. Nemam cas to u sebe testovat, takze zatim
+# takhle.
+#
 - name: overwrite FreeRADIUS directory on stretch
   set_fact:
     etc_freeradius: /etc/freeradius/3.0
-  when: ansible_distribution_release=='stretch'
+  when: ansible_distribution_release=='stretch' or
+        ansible_distribution_release=='buster'
 
 - name: create salt for CUI
   shell: pwgen 20 -n 1 > "{{ etc_freeradius }}/cui_salt"
