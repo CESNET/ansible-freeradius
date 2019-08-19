@@ -292,10 +292,11 @@ authorize {
 	# normalize MAC address to common format
 	rewrite_calling_station_id
 
-	update request {
-	       # the literal number "1" above is an important prefix! Do not change it!
-               Operator-Name := "1{{eduroam.realm|first}}"
-        }
+	# Semik: Better to set this in client.conf
+	# update request {
+	#        # the literal number "1" above is an important prefix! Do not change it!
+        #        Operator-Name = "1{{eduroam.realm|first}}"
+        # }
 
 	#
 	#  Some broken equipment sends passwords with embedded zeros.
@@ -439,7 +440,7 @@ authorize {
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
-{% if eduroam.mode == 'IdPSP' %}
+{% if (eduroam.mode == 'IdPSP') and (ldap is defined) %}
         if ({% for realm in eduroam.realm %}&User-Name =~ /@{{ realm }}/ || {% endfor %}false) {
 	  ldap
         }

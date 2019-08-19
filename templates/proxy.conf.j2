@@ -665,6 +665,14 @@ home_server {{ downRADIUS.hostname }} {
   ipaddr = {{ downRADIUS.ipaddr }}
   port = 1812
   secret = {{ downRADIUS.secret }}
+
+{% if eduroam.downRADIUS|length == 1 %}
+  # do not mark single downRADIUS as dead
+  response_timeouts = 1000
+  response_window = 30
+  zombie_period = 120
+  revive_interval = 60
+{% endif %}
 }
 
 {% endfor %}
@@ -675,6 +683,8 @@ home_server_pool downRADIUSes {
 }
 
 {% endif %}
+
+{% if (eduroam.mode == 'proxy') or (eduroam.mode == 'IdPSP') %}
 {% for realm in eduroam.realm %}
 realm {{ realm }} {
 {% if eduroam.mode == 'proxy' %}
@@ -683,6 +693,7 @@ realm {{ realm }} {
 {% endif %}
 }
 {% endfor %}
+{% endif %}
 
 # realm example.com {
 	#

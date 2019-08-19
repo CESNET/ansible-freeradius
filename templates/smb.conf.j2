@@ -1,0 +1,7 @@
+# Do not modify by hand! Ansible managed.
+
+[global]
+workgroup = {{ msAD.workgroup }}
+security = ads
+password server = {{ msAD.kdc_ip }}
+realm = {{ msAD.default_realm }}

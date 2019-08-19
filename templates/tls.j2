@@ -46,7 +46,7 @@ listen {
 	      #  this lifetime, the connection will be closed.
 	      #
 	      #  Setting this to 0 means "forever".
-	      lifetime = 0
+	      lifetime = 600
 
 	      #
 	      #  The idle timeout, in seconds, of a TCP connection.
@@ -389,7 +389,14 @@ clients radsec {
 	       ipaddr = {{ eduroam.topRADIUS.IP }}
 	       proto = tls             
                secret = radsec      
-        }    
+        }
+{% if eduroam.radsecPeers is defined %}{% for radsecPeer in eduroam.radsecPeers %}
+        client {{ radsecPeer.hostname }} {
+               ipaddr = {{ radsecPeer.ipaddr }}
+               proto = tls
+               secret = radsec
+	}
+{% endfor %}{% endif %}
 }
 
 home_server tls {

@@ -271,17 +271,25 @@ client localhost_ipv6 {
 #}
 
 client ermon.cesnet.cz {   
-       ipaddr    = 195.113.233.246
-       secret    = {{ eduroam.ermon_secret }}
-       shortname = ermon
+       ipaddr        = 195.113.233.246
+       secret        = {{ eduroam.ermon_secret }}
+       shortname     = ermon
+       # Do not add Chargeable-User-Identity = 0x00 to requests from ermon. 
+       add_cui       = no
+       # the literal number "1" above is an important prefix! Do not change it!
+       Operator-Name = 1{{eduroam.realm|first}}
 }
 
 {% if eduroam.NAS is defined %}
 {% for client in eduroam.NAS %}
 client {{ client.shortname }} {
-       ipaddr    = {{ client.ipaddr }}
-       secret    = {{ client.secret }}      
-       shortname = {{ client.shortname }}       
+       ipaddr        = {{ client.ipaddr }}
+       secret        = {{ client.secret }}      
+       shortname     = {{ client.shortname }}
+       # Add Chargeable-User-Identity = 0x00 to requests comming from local AP or WLC. 
+       add_cui       = yes
+       # the literal number "1" above is an important prefix! Do not change it!
+       Operator-Name = 1{{eduroam.realm|first}}
 }
 {% endfor %}
 {% endif %}
@@ -289,9 +297,12 @@ client {{ client.shortname }} {
 {% if eduroam.mode == 'proxy' %}
 {% for downRADIUS in eduroam.downRADIUS %}
 client {{ downRADIUS.hostname }} {
-       ipaddr    = {{ downRADIUS.ipaddr }}
-       secret    = {{ downRADIUS.secret }}
-       shortname = {{ downRADIUS.hostname }}
+       ipaddr        = {{ downRADIUS.ipaddr }}
+       secret        = {{ downRADIUS.secret }}
+       shortname     = {{ downRADIUS.hostname }}
+       add_cui       = yes
+       # the literal number "1" above is an important prefix! Do not change it!
+       Operator-Name = 1{{eduroam.realm|first}}
 }
 {% endfor %}
 {% endif %}

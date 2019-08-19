@@ -1,8 +1,6 @@
 # REPO @ aaiwiki is using HTTPS.
 - name: Install apt-transport-https for aaiwiki repo
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  with_items:
-    - apt-transport-https 
+  apt: name=apt-transport-https allow_unauthenticated=yes state=latest
   when: ansible_distribution_release=='jessie'
 
 - name: Add our FreeRADIUS repository
@@ -16,20 +14,28 @@
   apt: update_cache=yes cache_valid_time=86400
 
 - name: Install pwgen
-  apt: name={{ item }} state=latest
-  with_items:
-    - pwgen
+  apt: name=pwgen state=latest
 
 - name: Install/update FreeRADIUS
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  with_items: 
-    - freeradius
+  apt: name=freeradius allow_unauthenticated=yes state=latest
+
+- name: Enable FreeRADIUS
+  systemd: name=freeradius.service enabled=yes
 
 - name: Install/update FreeRADIUS LDAP module
-  apt: name={{ item }} allow_unauthenticated=yes state=latest
-  when: eduroam.mode == 'IdPSP'
-  with_items: 
-    - freeradius-ldap
+  apt: name=freeradius-ldap allow_unauthenticated=yes state=latest
+  when: (eduroam.mode == 'IdPSP') and (ldap is defined)
+
+- name: Install/update stuff for M$ AD
+  apt:
+    name:
+      - 'samba'
+      - 'winbind'
+      - 'krb5-config'
+      - 'krb5-user'
+    allow_unauthenticated: yes
+    state: latest
+  when: (eduroam.mode == 'IdPSP') and (msAD is defined)
 
 - name: set FreeRADIUS directory
   set_fact:
@@ -99,6 +105,8 @@
         dest: "{{ etc_freeradius }}/policy.d/kill-weblogin" }
     - { src: cui.j2,
         dest: "{{ etc_freeradius }}/policy.d/cui" }
+    - { src: mschap.j2,
+        dest: "{{ etc_freeradius }}/mods-available/mschap" }
   notify: restart freeradius
 
 - name: link needed files
@@ -112,13 +120,13 @@
         dest: "{{ etc_freeradius }}/mods-enabled/cui" }
   notify: restart freeradius
 
-# Semik: Dokumentaci k volbe static jsem pochopil presne obracene :/
-# http://docs.ansible.com/ansible/playbooks_roles.html
+- name: IdPSP LDAP specific tasks
+  include_tasks: idp_role.yml
+  when: (eduroam.mode == 'IdPSP') and (ldap is defined)
 
-- name: IdPSP specific tasks
-  include: idp_role.yml
-  static: no
-  when: eduroam.mode == 'IdPSP'
+- name: IdPSP M$ AD specific tasks
+  include_tasks: idp_msad_role.yml
+  when: (eduroam.mode == 'IdPSP') and (msAD is defined)
 
 - name: remove useless files (SP only or Proxy mode)
   file: dest={{ item }} owner=root group=root state=absent
@@ -129,18 +137,16 @@
   notify: restart freeradius
 
 - name: PKCS#12 certs
-  include: pkcs12_cert.yml
-  static: no
-  when: (eduroam.radsec.certificate is undefined) and (eduroam.EAP.certificate is undefined)
+  include_tasks: pkcs12_cert.yml
+  when: ((eduroam.radsec is defined) and (eduroam.radsec.certificate is undefined)) and
+        ((eduroam.EAP is defined) and (eduroam.EAP.certificate is undefined))
 
 - name: PEM certs for EAP
-  include: pem_cert_eap.yml
-  static: no
-  when: eduroam.EAP.certificate is defined
+  include_tasks: pem_cert_eap.yml
+  when: (eduroam.EAP is defined) and (eduroam.EAP.certificate is defined)
 
 - name: PEM certs for RadSec
-  include: pem_cert_radsec.yml
-  static: no
+  include_tasks: pem_cert_radsec.yml
   when: eduroam.radsec.certificate is defined
 
 - name: rad_eap_test

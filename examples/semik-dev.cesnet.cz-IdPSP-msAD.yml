@@ -1,0 +1,36 @@
+---
+eduroam:
+  mode: IdPSP
+  realm:
+    - semik-dev.cesnet.cz
+    - semik2-dev.cesnet.cz
+  ermon_secret: '{{ semik_dev_cesnet_cz.ermon_secret }}'
+  visCountry: CZ
+  topRADIUS:
+    CAChain: certs/chain_TERENA_SSL_High_Assurance_CA_3.pem
+    hostname: radius1.eduroam.cz
+    IP: 195.113.187.22
+  radsec:
+    certificate: certs/semik-dev.cesnet.cz.crt
+    private_key: certs/semik-dev.cesnet.cz.key
+    private_key_password: "{{ semik_dev_cesnet_cz.radsec_key_password }}"
+  EAP:
+    certificate: certs/semik-dev.cesnet.cz.crt
+    private_key: certs/semik-dev.cesnet.cz.key
+    private_key_password: "{{ semik_dev_cesnet_cz.eap_key_password }}"
+  NAS:
+    - ipaddr: 192.168.1.1
+      secret: random-secret
+      shortname: WLC1
+    - ipaddr: 192.168.1.2
+      secret: random-secret2
+      shortname: WLC2
+    - ipaddr: 192.168.2.1/24
+      secret: random-secret3
+      shortname: AP_oldbuilding
+msAD:
+  default_realm: SKOLA.LOCAL
+  workgroup: SKOLA
+  authz_group: geduroam
+  kdc_ip: 192.168.0.231
+  admin_server: alfa.skola.local

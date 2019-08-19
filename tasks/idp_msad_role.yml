@@ -1,0 +1,21 @@
+- name: Copy templated freeRADIUS files (IdPSP M$ AD role)
+  template: src={{ item.src }} dest={{ item.dest }} mode=0644 owner=root group=root backup=yes
+  with_items:
+    - { src: krb5.conf.j2,
+        dest: "/etc/krb5.conf" }
+    - { src: smb.conf.j2,
+        dest: "/etc/samba/smb.conf" }
+  notify: restart samba
+
+- name: link needed files (IdPSP role)
+  file: src={{ item.src }} dest={{ item.dest }} owner=root group=root state=link
+  with_items:
+    - { src: ../sites-available/inner-tunnel,
+        dest: "{{ etc_freeradius }}/sites-enabled/inner-tunnel" }
+    - { src: ../mods-available/eap,
+        dest: "{{ etc_freeradius }}/mods-enabled/eap" }
+  notify: restart freeradius
+
+- name: adding user freerad to group 
+  user: name=freerad groups=winbindd_priv append=yes
+  notify: restart freeradius
