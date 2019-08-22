@@ -13,10 +13,11 @@
     checksum: "sha256:7aa9fa552aa7b29a8335fba7e249052637ac05dd8dc7089899a422919fed2186"
   when: ansible_distribution_release=='jessie'
 
-- name: install eapol_test on stretch
+- name: install eapol_test on stretch & buster
   get_url:
-    url: https://aaiwiki.cesnet.cz/idp_files/eapol_test-2.5-stretch
+    url: https://aaiwiki.cesnet.cz/idp_files/eapol_test-2.9-stretch
     dest: /usr/local/bin/eapol_test
     mode: 0755
-    checksum: "sha256:b426ed8144967ba487c28471dc327c55edbafead6738f043ed98b9f34b1ee0c0"
-  when: ansible_distribution_release=='stretch'
+    checksum: "sha256:7d2cb73947e3352c5a13d1eee95249d093b6ea26bcfe84e4441a4a9b3841d1be"
+  when: ansible_distribution_release=='stretch' or
+        ansible_distribution_release=='buster'
