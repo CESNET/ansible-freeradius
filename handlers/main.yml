@@ -1,6 +1,9 @@
 ---
 - name: restart freeradius
-  command: /etc/init.d/freeradius restart
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: "{{ fr_service_name }}.service"
 
 - name: restart samba
   notify: restart samba2
