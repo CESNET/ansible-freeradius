@@ -7,7 +7,7 @@
   notify: restart freeradius
 
 - name: Copy freeRADIUS files (IdPSP role)
-  copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
+  copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner={{ fr_service_owner }} group={{ fr_service_group }} backup=yes
   when: eduroam.mode == 'IdPSP'
   with_items:
     - { src: "{{ ldap.CAChain }}",

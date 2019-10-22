@@ -17,5 +17,5 @@
   notify: restart freeradius
 
 - name: adding user freerad to group 
-  user: name=freerad groups=winbindd_priv append=yes
+  user: name={{ fr_service_owner }} groups=winbindd_priv append=yes
   notify: restart freeradius

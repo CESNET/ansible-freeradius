@@ -10,36 +10,92 @@
     #update_cache: yes
   when: ansible_distribution_release=='jessie'
 
-- name: Update repo cache
+- name: Set facts depending on OS family (Debian)
+  set_fact:
+    etc_freeradius: /etc/freeradius
+    lib_freeradius: /usr/lib/freeradius
+    log_freeradius: /var/log/freeradius
+    run_freeradius: /var/run/freeradius
+    fr_service_name: freeradius
+    fr_service_owner: freerad
+    fr_service_group: freerad
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Set facts depending on OS family (CentOS/RHEL)
+  set_fact:
+    etc_freeradius: /etc/raddb
+    lib_freeradius: /usr/lib64/freeradius
+    log_freeradius: /var/log/radius
+    run_freeradius: /var/run/radiusd
+    fr_service_name: radiusd
+    fr_service_owner: radiusd
+    fr_service_group: radiusd
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Update repo cache (Debian)
   apt: update_cache=yes cache_valid_time=86400
+  when: ansible_facts['os_family'] == "Debian"
 
-- name: Install pwgen
+- name: Install pwgen (Debian)
   apt: name=pwgen state=latest
+  when: ansible_facts['os_family'] == "Debian"
 
-- name: Install/update FreeRADIUS
+- name: Install/update FreeRADIUS (Debian)
   apt: name=freeradius allow_unauthenticated=yes state=latest
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install EPEL repository (CentOS/RHEL)
+  dnf: name=epel-release state=latest
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install pwgen (CentOS/RHEL)
+  dnf: name=pwgen state=latest
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install/update FreeRADIUS (CentOS/RHEL)
+  dnf:
+    name:
+      - freeradius
+      - freeradius-utils
+      - freeradius-sqlite
+    state: latest
+  when: ansible_facts['os_family'] == "RedHat"
 
 - name: Enable FreeRADIUS
-  systemd: name=freeradius.service enabled=yes
+  systemd: 
+    name: "{{ fr_service_name }}.service"
+    enabled: yes
 
-- name: Install/update FreeRADIUS LDAP module
+- name: Install/update FreeRADIUS LDAP module (Debian)
   apt: name=freeradius-ldap allow_unauthenticated=yes state=latest
-  when: (eduroam.mode == 'IdPSP') and (ldap is defined)
+  when: (eduroam.mode == 'IdPSP') and (ldap is defined) and ansible_facts['os_family'] == "Debian"
 
-- name: Install/update stuff for M$ AD
-  apt:
-    name:
+- name: Install/update FreeRADIUS LDAP module (CentOS/RHEL)
+  dnf: name=freeradius-ldap state=latest
+  when: (eduroam.mode == 'IdPSP') and (ldap is defined) and ansible_facts['os_family'] == "RedHat"
+
+- name: set packages for M$ AD
+  set_fact:
+    ms_ad_dep_pkgs:
       - 'samba'
       - 'winbind'
       - 'krb5-config'
       - 'krb5-user'
+
+- name: Install/update stuff for M$ AD (Debian)
+  apt:
+    name: "{{ item }}"
     allow_unauthenticated: yes
     state: latest
-  when: (eduroam.mode == 'IdPSP') and (msAD is defined)
+  with_items: "{{ ms_ad_dep_pkgs }}"
+  when: (eduroam.mode == 'IdPSP') and (msAD is defined) and ansible_facts['os_family'] == "Debian"
 
-- name: set FreeRADIUS directory
-  set_fact:
-    etc_freeradius: /etc/freeradius
+- name: Install/update stuff for M$ AD (CentOS/RHEL)
+  dnf:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ ms_ad_dep_pkgs }}"
+  when: (eduroam.mode == 'IdPSP') and (msAD is defined) and ansible_facts['os_family'] == "RedHat"
 
 # Tenhle stupidni adresar tam maji asi kvuli koexistenci s FR2
 # Semik: TODO evidentne na debianu bude konfigurace v 3.0 podadresari
@@ -68,7 +124,13 @@
 
 # copy needed files
 - name: Copy freeRADIUS files
-  copy: src={{ item.src }} dest={{ item.dest }} mode=0640 owner=freerad group=freerad backup=yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0640
+    owner: "{{ fr_service_owner }}"
+    group: "{{ fr_service_group }}"
+    backup: yes
   with_items:
     - { src: freeradius.logrotate,
         dest: /etc/logrotate.d/freeradius }
@@ -138,16 +200,15 @@
 
 - name: PKCS#12 certs
   include_tasks: pkcs12_cert.yml
-  when: ((eduroam.radsec is defined) and (eduroam.radsec.certificate is undefined)) and
-        ((eduroam.EAP is defined) and (eduroam.EAP.certificate is undefined))
+  when: eduroam.radsec is undefined or eduroam.EAP is undefined
 
 - name: PEM certs for EAP
   include_tasks: pem_cert_eap.yml
-  when: (eduroam.EAP is defined) and (eduroam.EAP.certificate is defined)
+  when: eduroam.EAP is defined and eduroam.EAP.certificate is defined and eduroam.EAP.private_key is defined
 
 - name: PEM certs for RadSec
   include_tasks: pem_cert_radsec.yml
-  when: eduroam.radsec.certificate is defined
+  when: eduroam.radsec is defined and eduroam.radsec.certificate is defined and eduroam.radsec.private_key is defined
 
 - name: rad_eap_test
   include: rad_eap_test.yml
