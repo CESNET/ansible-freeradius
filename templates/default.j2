@@ -336,7 +336,7 @@ authorize {
 
 
 	# exclude monitoring records from auth_log
-	if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
+	if (Calling-Station-Id !~ /^70-6F-6C-6/) {
 		auth_log
 	}
 
@@ -568,7 +568,7 @@ authenticate {
                         handled = 1
                 }
                 # record access-chalenge & exclude monitoring records from log
-                if (handled && Calling-Station-Id !~ /^70-6F-6C-69-/) {
+                if (handled && Calling-Station-Id !~ /^70-6F-6C-6/) {
                         reply_log.post-auth
                         handled  # override rcode (maybe superfluous)
                 }
@@ -779,7 +779,7 @@ post-auth {
 {% endif %}
 
 	# exclude monitoring records from log
-	if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
+	if (Calling-Station-Id !~ /^70-6F-6C-6/) {
 		reply_log
 		f_ticks
 	}
@@ -910,7 +910,7 @@ post-auth {
 	}
 
         Post-Auth-Type CHALLENGE {
-           if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
+           if (Calling-Station-Id !~ /^70-6F-6C-6/) {
 	      auth_log
 	   }
         }
@@ -950,7 +950,7 @@ pre-proxy {
 	#  'detail pre_proxy_log' section, above.
 
 	# exclude monitoring from log
-	if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
+	if (Calling-Station-Id !~ /^70-6F-6C-6/) {
 		pre_proxy_log
 	}
 }
@@ -962,7 +962,7 @@ pre-proxy {
 #
 post-proxy {
 	# exclude monitoring from log
-	if (Calling-Station-Id !~ /^70-6F-6C-69-/) {
+	if (Calling-Station-Id !~ /^70-6F-6C-6/) {
 		post_proxy_log
 	}
 
