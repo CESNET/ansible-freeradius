@@ -198,7 +198,7 @@
 
 - name: PKCS#12 certs
   include_tasks: pkcs12_cert.yml
-  when: eduroam.radsec is undefined or eduroam.EAP is undefined
+  when: eduroam.radsec is undefined
 
 - name: PEM certs for EAP
   include_tasks: pem_cert_eap.yml
