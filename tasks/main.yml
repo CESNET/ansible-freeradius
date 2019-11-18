@@ -84,17 +84,15 @@
 
 - name: Install/update stuff for M$ AD (Debian)
   apt:
-    name: "{{ item }}"
+    name: "{{ ms_ad_dep_pkgs }}"
     allow_unauthenticated: yes
     state: latest
-  with_items: "{{ ms_ad_dep_pkgs }}"
   when: (eduroam.mode == 'IdPSP') and (msAD is defined) and ansible_facts['os_family'] == "Debian"
 
 - name: Install/update stuff for M$ AD (CentOS/RHEL)
   dnf:
-    name: "{{ item }}"
+    name: "{{ ms_ad_dep_pkgs }}"
     state: latest
-  with_items: "{{ ms_ad_dep_pkgs }}"
   when: (eduroam.mode == 'IdPSP') and (msAD is defined) and ansible_facts['os_family'] == "RedHat"
 
 # Tenhle stupidni adresar tam maji asi kvuli koexistenci s FR2
