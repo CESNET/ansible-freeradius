@@ -18,7 +18,7 @@ eduroam:
   ermon_secret: '{{ semik_dev_cesnet_cz.ermon_secret }}'
   visCountry: CZ
   topRADIUS:
-    CAChain: certs/chain_CESNET_CA3.pem
+    CAChain: certs/chain_CESNET_CA4.pem
     hostname: radius1.eduroam.cz
     IP: 195.113.187.22
   NAS:
