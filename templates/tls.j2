@@ -46,7 +46,7 @@ listen {
 	      #  this lifetime, the connection will be closed.
 	      #
 	      #  Setting this to 0 means "forever".
-	      lifetime = 600
+	      lifetime = 0
 
 	      #
 	      #  The idle timeout, in seconds, of a TCP connection.
@@ -57,7 +57,7 @@ listen {
 	      #
 	      #  We STRONGLY RECOMMEND that you set an idle timeout.
 	      #
-	      idle_timeout = 30
+	      idle_timeout = 600
 	}
 
 	#  This is *exactly* the same configuration as used by the EAP-TLS
@@ -388,13 +388,23 @@ clients radsec {
 	client {{ eduroam.topRADIUS.hostname }} {   
 	       ipaddr = {{ eduroam.topRADIUS.IP }}
 	       proto = tls             
-               secret = radsec      
+               secret = radsec
+               limit {
+                 max_connections = 16
+                 lifetime = 0
+                 idle_timeout = 600
+               }
         }
 {% if eduroam.radsecPeers is defined %}{% for radsecPeer in eduroam.radsecPeers %}
         client {{ radsecPeer.hostname }} {
                ipaddr = {{ radsecPeer.ipaddr }}
                proto = tls
                secret = radsec
+               limit {
+                 max_connections = 16
+                 lifetime = 0
+                 idle_timeout = 600
+               }
 	}
 {% endfor %}{% endif %}
 }
